@@ -2,29 +2,26 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class Subkriteria extends Model
+class SubKriteria extends Model
 {
     use HasFactory;
-    protected $table = 'subkriteria'; // Pastikan Laravel menggunakan nama tabel yang benar
-    protected $primaryKey = 'id'; // Jika primary key bukan 'id'
 
-    protected $fillable = ['nama_subkriteria', 'nilai', 'kriteria_id']; // Sesuaikan dengan kolom tabel
+    protected $table = 'sub_kriterias';
 
-    public function kriteria()
+    protected $fillable = ['kriteria_id', 'nama_sub', 'nilai', 'min_harga', 'max_harga'];
+
+    public function kriteria(): BelongsTo
     {
-        return $this->belongsTo(Kriteria::class, 'kriteria_id');
+        return $this->belongsTo(Kriteria::class);
     }
 
-    public function penilaian()
+    public function pakaian(): BelongsToMany
     {
-        return $this->hasMany(Penilaian::class, 'subkriteria_id');
-    }
-
-    public function dataAlternatif()
-    {
-        return $this->hasMany(DataAlternatif::class, 'subkriteria_id');
+        return $this->belongsToMany(Pakaian::class, 'pakaian_sub_kriteria');
     }
 }
