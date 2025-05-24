@@ -75,36 +75,34 @@
             </li>
 
             <!-- Nav Item - Data Sub Kriteria (Collapse) -->
-            <li class="nav-item {{ request()->is('admin/subkriteria/kriteria/*') ? 'active' : '' }}">
-                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapsePages"
-                    aria-expanded="true" aria-controls="collapsePages">
-                    <i class="bi bi-boxes"></i>
+            <li class="nav-item">
+            <a class="nav-link d-flex justify-content-between align-items-center {{ request()->is('admin/kriteria/subkriteria/*') ? '' : 'collapsed' }}"
+                href="#" data-bs-toggle="collapse" data-bs-target="#collapseSubkriteria" aria-expanded="{{ request()->is('admin/kriteria/subkriteria/*') ? 'true' : 'false' }}"
+                aria-controls="collapseSubkriteria" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
+                <div>
+                    <i class="bi bi-boxes me-2"></i>
                     <span>Data Sub Kriteria</span>
-                </a>
-
-                <div id="collapsePages"
-                    class="collapse {{ request()->is('admin/kriteria/subkriteria/*') ? 'show' : '' }}"
-                    aria-labelledby="headingPages" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        @php
-                            use App\Models\Kriteria;
-                            $kriterias = Kriteria::with('subKriteria')->get(); // ambil dengan relasi
-                        @endphp
-                        <ul>
-                            @foreach ($kriterias as $kriteria)
-                                <li>
-                                    <a href="{{ route('admin.kriteria.subkriteria.index', ['nama_kriteria' => $kriteria->nama_kriteria]) }}">
-                                        {{ $kriteria->nama_kriteria }}
-                                    </a>
-                                </li>
-                            @endforeach
-                        </ul>
-
-
-                    </div>
                 </div>
+                <i class="bi bi-chevron-down small"></i>
+            </a>
 
-            </li>
+            <div id="collapseSubkriteria" class="collapse {{ request()->is('admin/kriteria/subkriteria/*') ? 'show' : '' }}">
+                <div class="bg-white ps-3 py-2 rounded-2">
+                    @php
+                        use App\Models\Kriteria;
+                        $kriterias = Kriteria::with('subKriteria')->get();
+                    @endphp
+
+                    @foreach ($kriterias as $kriteria)
+                        <a href="{{ route('admin.kriteria.subkriteria.index', ['nama_kriteria' => $kriteria->nama_kriteria]) }}"
+                            class="d-block py-1 px-2 nav-link text-dark {{ request()->is('admin/kriteria/subkriteria/' . $kriteria->nama_kriteria) ? 'fw-semibold text-primary' : 'text-muted' }}"
+                            style="font-size: 0.85rem;">
+                            <i class="bi bi-chevron-right small me-1"></i>{{ $kriteria->nama_kriteria }}
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+        </li>
 
             <script>
                 document.addEventListener("DOMContentLoaded", function() {
