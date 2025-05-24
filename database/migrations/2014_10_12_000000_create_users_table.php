@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string('username')->unique(); // Ganti email jadi username
             $table->string('email', 255)->unique();
             $table->string('password');
-            $table->string('role');
             $table->rememberToken();
             $table->timestamps();
         });
