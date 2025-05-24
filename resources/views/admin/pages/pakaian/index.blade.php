@@ -35,25 +35,29 @@
 
         <div class="card-body">
             <form method="GET" id="entriesForm" action="{{ route('admin.pakaian.index') }}"
-                class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
-                <div class="d-flex align-items-center">
-                    <label for="entriesPerPage" class="me-2">Show</label>
-                    <select name="entries" id="entriesPerPage" class="form-select me-3"
-                        onchange="document.getElementById('entriesForm').submit()">
-                        <option value="10" {{ request('entries') == 10 ? 'selected' : '' }}>10</option>
-                        <option value="25" {{ request('entries') == 25 ? 'selected' : '' }}>25</option>
-                        <option value="50" {{ request('entries') == 50 ? 'selected' : '' }}>50</option>
-                    </select>
-                    <span class="me-3">entries</span>
-                </div>
+            class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
 
-                <div class="d-flex align-items-center gap-2">
-                    <label for="search" class="me-2">Search:</label>
-                    <input type="text" name="search" id="search" class="form-control" placeholder="Search..."
-                        value="{{ request('search') }}">
-                    <button type="submit" class="btn btn-primary">Cari</button>
-                </div>
-            </form>
+            {{-- KIRI --}}
+            <div class="d-flex align-items-center">
+                <label for="entriesPerPage" class="me-2 mb-0">Show</label>
+                <select name="entries" id="entriesPerPage" class="form-select form-select-sm me-2"
+                    onchange="document.getElementById('entriesForm').submit()">
+                    <option value="10" {{ request('entries') == 10 ? 'selected' : '' }}>10</option>
+                    <option value="25" {{ request('entries') == 25 ? 'selected' : '' }}>25</option>
+                    <option value="50" {{ request('entries') == 50 ? 'selected' : '' }}>50</option>
+                </select>
+                <span class="mb-0">entries</span>
+            </div>
+
+            {{-- KANAN --}}
+            <div class="d-flex align-items-center">
+                <label for="search" class="me-2 mb-0">Search:</label>
+                <input type="text" name="search" id="search" class="form-control form-control-sm me-3" placeholder="Search..."
+                    value="{{ request('search') }}">
+                <button type="submit" class="btn btn-sm btn-primary">Cari</button>
+            </div>
+
+        </form>
 
             <div class="table-responsive">
                 <table class="table table-bordered">
@@ -79,22 +83,19 @@
                                         Tidak ada gambar
                                     @endif
                                 </td>
-
                                 <td>{{ $item->nama_pakaian }}</td>
                                 <td class="text-center">
                                     <!-- Tombol Info -->
                                     <button class="btn btn-info btn-sm" data-bs-toggle="modal"
                                         data-bs-target="#infoModal{{ $item->id }}">
-                                        Info
+                                        <i class="bi bi-info-circle-fill"></i>
                                     </button>
 
                                     <!-- Tombol Edit -->
                                     <button class="btn btn-warning btn-sm" data-bs-toggle="modal"
                                         data-bs-target="#modalEdit{{ $item->id }}">
-                                        Edit
+                                         <i class="bi bi-pencil"></i>
                                     </button>
-
-
 
                                     @foreach ($alternatif as $item)
                                         <!-- Modal Info -->
@@ -161,23 +162,22 @@
                 </div>
             </div>
         </div>
-
-
     </div>
+    
     <!-- Modal Tambah Data Pakaian -->
     <div class="modal fade" id="modalTambah" tabindex="-1" aria-labelledby="modalTambahLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
+        <div class="modal-dialog modal-dialog-centered"> <!-- Centered vertically -->
+            <div class="modal-content rounded-3 shadow-sm border-0">
                 <!-- Header -->
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalTambahLabel">
-                        <i class="bi bi-plus-circle"></i> Tambah Pakaian
+                <div class="modal-header border-bottom-0">
+                    <h5 class="modal-title fw-semibold" id="modalTambahLabel">
+                        <i class="bi bi-plus-circle me-1"></i> Tambah Pakaian
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
                 </div>
 
                 <!-- Body -->
-                <div class="modal-body">
+                <div class="modal-body pt-0">
                     <form action="{{ route('admin.pakaian.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
 
@@ -196,16 +196,21 @@
                             <input type="file" class="form-control" name="img" accept="image/*">
                         </div>
 
-                        <div class="d-flex justify-content-end gap-2">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                            <button type="submit" class="btn btn-success">Simpan</button>
-                        </div>
+                        <!-- Footer Buttons -->
+                        <div class="modal-footer border-top-0 d-flex justify-content-end gap-2 pt-0">
+                        <button type="button" class="btn" style="background-color: #90ee90; color: black; border-radius: 5px; padding: 6px 20px;" data-bs-dismiss="modal">
+                            <i></i> Batal
+                        </button>
+                        <button type="submit" class="btn" style="background-color: #064e3b; color: white; border-radius: 5px; padding: 6px 20px;">
+                            <i></i> Simpan
+                        </button>
+                    </div>
                     </form>
-
                 </div>
             </div>
         </div>
     </div>
+
     @foreach ($alternatif as $item)
         <!-- Modal Edit -->
         <div class="modal fade" id="modalEdit{{ $item->id }}" tabindex="-1"

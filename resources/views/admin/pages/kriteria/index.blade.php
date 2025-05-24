@@ -7,18 +7,20 @@
         <h1 class="h3 text-grey-800">
             <i class="bi bi-box"></i> Data Kriteria
         </h1>
-        <a href="{{ route('admin.kriteria.create') }}" class="btn btn-success"
-            style="background-color: #006400; border-color: #004d00;">
-            <i></i> Tambah Data
-        </a>
     </div>
 
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold" style="color: #006400;">
-                <i class="bi bi-table"></i> Daftar Data Kriteria
+            <h6 class="m-0 font-weight-bold d-flex justify-content-between align-items-center" style="color: #006400;">
+                <span>
+                    <i class="bi bi-table"></i> Daftar Data Kriteria
+                </span>
+                <a href="{{ route('admin.kriteria.create') }}" class="btn btn-success"
+                    style="background-color: #006400; border-color: #004d00;">
+                    <i class="bi bi-plus"></i> Tambah Data
+                </a>
             </h6>
-
+            
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -48,15 +50,13 @@
                                             <i class="bi bi-pencil"></i>
                                         </a>
 
-                                        <form action="{{ route('admin.kriteria.destroy', $item->id) }}" method="POST"
-                                            class="d-inline" onsubmit="return confirm('Yakin ingin menghapus data ini?')">
+                                        <form id="delete-form-{{ $item->id }}" action="{{ route('admin.kriteria.destroy', $item->id) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-danger btn-sm mx-1">
+                                            <button type="button" class="btn btn-danger btn-sm mx-1 delete-button" data-id="{{ $item->id }}">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </form>
-
                                     </div>
                                 </td>
                             </tr>
@@ -78,6 +78,18 @@
                 icon: 'success',
                 timer: 3000,
                 showConfirmButton: false
+            });
+        </script>
+    @endif
+
+    @if (session('error'))
+        <script>
+            Swal.fire({
+                title: 'Error!',
+                text: '{{ session('error') }}',
+                icon: 'error',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#d33'
             });
         </script>
     @endif
