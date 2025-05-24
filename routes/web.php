@@ -1,22 +1,15 @@
 <?php
 
-use App\Http\Controllers\Admin\AlternatifController;
-use App\Http\Controllers\Admin\AuthController;
-use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\DataKriteriaController;
-use App\Http\Controllers\Admin\HasilAkhirController;
-use App\Http\Controllers\Admin\PenilaianController;
-use App\Http\Controllers\Admin\PerhitunganController;
-use App\Http\Controllers\Admin\ResetPasswordController;
-use App\Http\Controllers\Admin\RiwayatController;
-use App\Http\Controllers\Admin\SubkriteriaController;
-use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\ForgotPasswordController;
-use App\Http\Controllers\Landingpage\DressController;
-use App\Http\Controllers\Landingpage\HomeController;
-use App\Http\Controllers\QuizController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\KriteriaController;
+use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Landingpage\HomeController;
+use App\Http\Controllers\SubKriteriaController;
+use App\Http\Controllers\Admin\ResetPasswordController;
+use App\Http\Controllers\PakaianController;
+use App\Http\Controllers\SubKriteriaShowController;
 
 /*
 |--------------------------------------------------------------------------
@@ -65,51 +58,58 @@ Route::post('/logout', function () {
 })->name('logout');
 
 // Dashboard
-Route::get('/dashboard', [DashboardController::class, 'indexPage'])->name('dashboard');
+Route::prefix('admin')->middleware(['auth'])->as('admin.')->group(function () {
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::resource('kriteria', KriteriaController::class);
+    Route::resource('subkriteria', SubkriteriaController::class);
+    Route::get('kriteria/subkriteria/{nama_kriteria}', [SubKriteriaShowController::class, 'indexShow'])->name('kriteria.subkriteria.index');
 
-// Kriteria
-Route::get('/kriteria', [DataKriteriaController::class, 'indexPage'])->name('admin.kriteria.index');
-Route::get('/kriteria/create', [DataKriteriaController::class, 'create'])->name('admin.kriteria.create');
-Route::post('/kriteria/store', [DataKriteriaController::class, 'store'])->name('admin.kriteria.store');
-Route::get('/kriteria/{id}/edit', [DataKriteriaController::class, 'edit'])->name('admin.kriteria.edit');
-Route::put('/kriteria/{id}/update', [DataKriteriaController::class, 'update'])->name('admin.kriteria.update');
-Route::delete('/kriteria/{id}/delete', [DataKriteriaController::class, 'destroy'])->name('admin.kriteria.destroy');
+    Route::resource('pakaian', PakaianController::class);
+});
 
-// Sub Kriteria
-Route::get('/admin/subkriteria/kriteria/{id}', [SubkriteriaController::class, 'showByKriteria'])->name('admin.pages.subkriteria.kriteria');
-Route::get('/admin/subkriteria/kriteria/{id}/create', [SubkriteriaController::class, 'create'])->name('admin.subkriteria.create');
-Route::post('/admin/subkriteria/store', [SubKriteriaController::class, 'store'])->name('admin.subkriteria.store');
-Route::get('/admin/subkriteria/{id}/edit', [SubkriteriaController::class, 'edit'])->name('admin.subkriteria.edit');
-Route::put('/admin/subkriteria/{id}', [SubkriteriaController::class, 'update'])->name('admin.pages.subkriteria.update');
-Route::delete('/admin/subkriteria/{id}', [SubkriteriaController::class, 'destroy'])->name('subkriteria.destroy');
+// // Kriteria
+// Route::get('/kriteria', [DataKriteriaController::class, 'indexPage'])->name('admin.kriteria.index');
+// Route::get('/kriteria/create', [DataKriteriaController::class, 'create'])->name('admin.kriteria.create');
+// Route::post('/kriteria/store', [DataKriteriaController::class, 'store'])->name('admin.kriteria.store');
+// Route::get('/kriteria/{id}/edit', [DataKriteriaController::class, 'edit'])->name('admin.kriteria.edit');
+// Route::put('/kriteria/{id}/update', [DataKriteriaController::class, 'update'])->name('admin.kriteria.update');
+// Route::delete('/kriteria/{id}/delete', [DataKriteriaController::class, 'destroy'])->name('admin.kriteria.destroy');
 
-// Data alternatif
-Route::get('/alternatif', [AlternatifController::class, 'indexPage'])->name('admin.alternatif.index');
-Route::post('/admin/alternatif', [AlternatifController::class, 'store'])->name('admin.alternatif.store');       
-Route::get('/alternatif/{id}/edit', [AlternatifController::class, 'edit'])->name('admin.alternatif.edit');
-Route::put('/alternatif/{id}', [AlternatifController::class, 'update'])->name('admin.alternatif.update');
-Route::delete('/alternatif/{id}', [AlternatifController::class, 'destroy'])->name('admin.alternatif.destroy');
+// // Sub Kriteria
+// Route::get('/admin/subkriteria/kriteria/{id}', [SubkriteriaController::class, 'showByKriteria'])->name('admin.pages.subkriteria.kriteria');
+// Route::get('/admin/subkriteria/kriteria/{id}/create', [SubkriteriaController::class, 'create'])->name('admin.subkriteria.create');
+// Route::post('/admin/subkriteria/store', [SubKriteriaController::class, 'store'])->name('admin.subkriteria.store');
+// Route::get('/admin/subkriteria/{id}/edit', [SubkriteriaController::class, 'edit'])->name('admin.subkriteria.edit');
+// Route::put('/admin/subkriteria/{id}', [SubkriteriaController::class, 'update'])->name('admin.pages.subkriteria.update');
+// Route::delete('/admin/subkriteria/{id}', [SubkriteriaController::class, 'destroy'])->name('subkriteria.destroy');
 
-// Penilaian alternatif
-Route::get('/penilaian', [PenilaianController::class, 'indexPage'])->name('admin.penilaian.index');
-Route::get('/penilaian/create', [PenilaianController::class, 'create'])->name('admin.penilaian.create');
-Route::get('/penilaian/{id}/edit', [PenilaianController::class, 'edit'])->name('admin.penilaian.edit');
-Route::put('/penilaian/{id}', [PenilaianController::class, 'update'])->name('admin.penilaian.update');
+// // Data alternatif
+// Route::get('/alternatif', [AlternatifController::class, 'indexPage'])->name('admin.alternatif.index');
+// Route::post('/admin/alternatif', [AlternatifController::class, 'store'])->name('admin.alternatif.store');
+// Route::get('/alternatif/{id}/edit', [AlternatifController::class, 'edit'])->name('admin.alternatif.edit');
+// Route::put('/alternatif/{id}', [AlternatifController::class, 'update'])->name('admin.alternatif.update');
+// Route::delete('/alternatif/{id}', [AlternatifController::class, 'destroy'])->name('admin.alternatif.destroy');
 
-// Data user
-// Route::get('/user', [UserController::class, 'index'])->name('users.index');
-Route::get('/user/{id}', [UserController::class, 'show'])->name('user.show');
-Route::get('/user/{id}/edit', [UserController::class, 'edit'])->name('user.edit');
-Route::put('/user/{id}', [UserController::class, 'update'])->name('user.update');
-// Route::delete('/user/{id}', [UserController::class, 'destroy'])->name('user.destroy');
+// // Penilaian alternatif
+// Route::get('/penilaian', [PenilaianController::class, 'indexPage'])->name('admin.penilaian.index');
+// Route::get('/penilaian/create', [PenilaianController::class, 'create'])->name('admin.penilaian.create');
+// Route::get('/penilaian/{id}/edit', [PenilaianController::class, 'edit'])->name('admin.penilaian.edit');
+// Route::put('/penilaian/{id}', [PenilaianController::class, 'update'])->name('admin.penilaian.update');
 
-// Data perhitungan
-Route::get('/perhitungan/dress', [PerhitunganController::class, 'dress'])->name('admin.perhitungan.dress');
-Route::get('/perhitungan/blouse', [PerhitunganController::class, 'blouse'])->name('admin.perhitungan.blouse');
-Route::get('/perhitungan/cardigan', [PerhitunganController::class, 'cardigan'])->name('admin.perhitungan.cardigan');
-Route::get('/perhitungan/rok', [PerhitunganController::class, 'rok'])->name('admin.perhitungan.rok');
-Route::get('/perhitungan/celana', [PerhitunganController::class, 'celana'])->name('admin.perhitungan.celana');
+// // Data user
+// // Route::get('/user', [UserController::class, 'index'])->name('users.index');
+// Route::get('/user/{id}', [UserController::class, 'show'])->name('user.show');
+// Route::get('/user/{id}/edit', [UserController::class, 'edit'])->name('user.edit');
+// Route::put('/user/{id}', [UserController::class, 'update'])->name('user.update');
+// // Route::delete('/user/{id}', [UserController::class, 'destroy'])->name('user.destroy');
 
-// Riwayat
-Route::get('/riwayat', [RiwayatController::class, 'index'])->name('admin.riwayat.index');
-Route::delete('/riwayat/{id}', [RiwayatController::class, 'destroy'])->name('admin.riwayat.destroy');
+// // Data perhitungan
+// Route::get('/perhitungan/dress', [PerhitunganController::class, 'dress'])->name('admin.perhitungan.dress');
+// Route::get('/perhitungan/blouse', [PerhitunganController::class, 'blouse'])->name('admin.perhitungan.blouse');
+// Route::get('/perhitungan/cardigan', [PerhitunganController::class, 'cardigan'])->name('admin.perhitungan.cardigan');
+// Route::get('/perhitungan/rok', [PerhitunganController::class, 'rok'])->name('admin.perhitungan.rok');
+// Route::get('/perhitungan/celana', [PerhitunganController::class, 'celana'])->name('admin.perhitungan.celana');
+
+// // Riwayat
+// Route::get('/riwayat', [RiwayatController::class, 'index'])->name('admin.riwayat.index');
+// Route::delete('/riwayat/{id}', [RiwayatController::class, 'destroy'])->name('admin.riwayat.destroy');

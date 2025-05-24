@@ -68,7 +68,7 @@
 
         <!-- Data Kriteria -->
         <div class="col-xl-4 col-md-6 mb-4">
-            <a href="{{ route('admin.kriteria.index') }}" class="card-link">
+            <a href="#">
                 <div class="card border-left-primary shadow h-100 py-2">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
@@ -81,10 +81,10 @@
                 </div>
             </a>
         </div>
-    
+
         <!-- Data Sub Kriteria -->
         <div class="col-xl-4 col-md-6 mb-4">
-            <a href="{{ $kriteriaId ? route('admin.pages.subkriteria.kriteria', ['id' => $kriteriaId]) : '#' }}" class="card-link">
+            <a href="#">
                 <div class="card border-left-info shadow h-100 py-2">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
@@ -97,15 +97,15 @@
                 </div>
             </a>
         </div>
-    
+
         <!-- Data Alternatif -->
         <div class="col-xl-4 col-md-6 mb-4">
-            <a href="{{ route('admin.alternatif.index') }}" class="text-decoration-none">
+            <a href="#" class="text-decoration-none">
                 <div class="card border-left-success shadow h-100 py-2">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="h5 mb-0 font-weight-bold text-gray-800 underline-on-hover">
-                                Data Alternatif: {{ $totalAlternatif }}
+                                Data Alternatif: {{ $totalPakaian }}
                             </span>
                             <i class="bi bi-person-lines-fill text-gray-400" style="font-size: 1.5rem;"></i>
                         </div>
@@ -113,8 +113,8 @@
                 </div>
             </a>
         </div>
-    
-        <!-- Data Penilaian -->
+
+        {{-- <!-- Data Penilaian -->
         <div class="col-xl-4 col-md-6 mb-4">
             <a href="{{ route('admin.penilaian.index') }}" style="text-decoration: none;">
                 <div class="card border-left-secondary shadow h-100 py-2">
@@ -127,7 +127,7 @@
                 </div>
             </a>
         </div>
-    
+
         <!-- Data Perhitungan -->
         <div class="col-xl-4 col-md-6 mb-4">
             <div class="card border-left-warning shadow h-100 py-2">
@@ -139,7 +139,7 @@
                 </div>
             </div>
         </div>
-    
+
         <!-- Data Hasil Akhir -->
         <div class="col-xl-4 col-md-6 mb-4">
             <div class="card border-left-danger shadow h-100 py-2">
@@ -150,7 +150,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
     </div>
-    
+
 @endsection

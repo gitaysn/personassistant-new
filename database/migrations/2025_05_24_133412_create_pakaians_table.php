@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-         Schema::table('dataalternatif', function (Blueprint $table) {
-            $table->string('gambar')->nullable()->after('nama_alternatif');
+        Schema::create('pakaians', function (Blueprint $table) {
+            $table->id();
+            $table->string('nama_pakaian');
+            $table->longText('img');
+            $table->unsignedBigInteger('harga'); // harga asli pakaian
+            $table->timestamps();
         });
     }
 
@@ -21,8 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('dataalternatif', function (Blueprint $table) {
-            $table->dropColumn('gambar');
-        });
+        Schema::dropIfExists('pakaians');
     }
 };

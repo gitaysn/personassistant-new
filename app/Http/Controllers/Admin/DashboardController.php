@@ -5,32 +5,21 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\DataAlternatif;
 use App\Models\Kriteria;
+use App\Models\Pakaian;
 use App\Models\Penilaian;
 use App\Models\Subkriteria;
+use App\Models\SubKriteria as ModelsSubKriteria;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function indexPage()
+
+    public function index()
     {
-        // Ambil jumlah data dari masing-masing model
+        $totalPakaian = Pakaian::count();
         $totalKriteria = Kriteria::count();
         $totalSubKriteria = Subkriteria::count();
-        $totalAlternatif = DataAlternatif::count();
-        $totalPenilaian = Penilaian::count();
 
-        // Ambil salah satu kriteria, misal yang pertama
-        $kriteriaPertama = Kriteria::first();
-
-        // Kirim data ke view
-        return view('admin.pages.dashboard.index', [
-            'totalKriteria' => $totalKriteria,
-            'totalSubKriteria' => $totalSubKriteria,
-            'totalAlternatif' => $totalAlternatif,
-            'totalPenilaian' => $totalPenilaian,
-            'totalPerhitungan' => $totalPenilaian,
-            'totalHasilAkhir' => $totalPenilaian,
-            'kriteriaId' => $kriteriaPertama ? $kriteriaPertama->id : null,
-        ]);
+        return view("admin.pages.dashboard.index", compact("totalPakaian", "totalKriteria", "totalSubKriteria"));
     }
 }

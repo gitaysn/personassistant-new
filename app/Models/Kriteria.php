@@ -8,18 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 class Kriteria extends Model
 {
     use HasFactory;
-    protected $table = 'datakriteria'; // Sesuaikan dengan nama tabel di database
 
-    protected $fillable = ['kode_kriteria', 'nama_kriteria', 'bobot', 'jenis']; // Sesuaikan dengan kolom yang ada di tabel
+    protected $table = 'kriterias';
 
-    public function subkriteria()
+    protected $fillable = ['nama_kriteria', 'bobot', 'jenis', 'kode_kriteria'];
+
+    public function subKriteria()
     {
-        return $this->hasMany(Subkriteria::class, 'kriteria_id'); // Pastikan foreign key sesuai dengan tabel subkriteria
+        return $this->hasMany(SubKriteria::class);
     }
-
-    public function penilaian()
-    {
-        return $this->hasMany(Penilaian::class, 'kriteria_id');
-    }
-
 }

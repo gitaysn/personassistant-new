@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('quiz_histories', function (Blueprint $table) {
+        Schema::create('pakaian_sub_kriterias', function (Blueprint $table) {
             $table->id();
-            $table->json('data_kuisioner');
-            $table->json('hasil_rekomendasi');
+            $table->foreignId('pakaian_id')->constrained()->onDelete('cascade');
+            $table->foreignId('sub_kriteria_id')->constrained()->onDelete('cascade');
             $table->timestamps();
+
+            $table->unique(['pakaian_id', 'sub_kriteria_id']);
         });
     }
 
@@ -24,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('quiz_history');
+        Schema::dropIfExists('pakaian_sub_kriterias');
     }
 };

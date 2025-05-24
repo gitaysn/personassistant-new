@@ -21,8 +21,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        view()->composer('*', function ($view) {
-            $view->with('semua_kriteria', Kriteria::all());
-        });
+        // view()->composer('*', function ($view) {
+        //     $view->with('semua_kriteria', Kriteria::all());
+        // });
     }
 }
