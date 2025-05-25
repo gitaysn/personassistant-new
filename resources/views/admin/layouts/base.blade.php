@@ -24,12 +24,28 @@
 
 
     <style>
+        .sidebar {
+        position: relative;
+
+    }
         .bg-gradient-green {
             background-color: #43a047 !important;
             /* hijau medium */
             background-image: linear-gradient(180deg, #388e3c 10%, #4caf50 100%) !important;
             background-size: cover;
         }
+
+        /* Hilangkan jarak antar item sidebar */
+        #accordionSidebar .nav-item {
+            margin-bottom: 2px !important;
+        }
+
+        /* Kurangi padding di dalam link */
+        #accordionSidebar .nav-link {
+            padding-top: 8px !important;
+            padding-bottom: 8px !important;
+        }
+
     </style>
 
 </head>
@@ -43,9 +59,8 @@
         <ul class="navbar-nav bg-gradient-green sidebar sidebar-dark accordion" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center logo-custom" href="index.html">
-                <div class="sidebar-brand-icon rotate-n-15">
-                </div>
+            <a class="sidebar-brand d-flex align-items-center logo-custom mt-3 mb-3" href="index.html">
+                <div class="sidebar-brand-icon rotate-n-15"></div>
                 <div class="sidebar-brand-text">SPK V-Person Assistant</div>
             </a>
 
@@ -56,7 +71,8 @@
             <li class="nav-item {{ request()->is('dashboard') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('admin.dashboard') }}">
                     <i class="bi bi-house-door-fill"></i>
-                    <span>Dashboard</span></a>
+                    <span>Dashboard</span>
+                </a>
             </li>
 
             <!-- Divider -->
@@ -87,7 +103,7 @@
             </a>
 
             <div id="collapseSubkriteria" class="collapse {{ request()->is('admin/kriteria/subkriteria/*') ? 'show' : '' }}">
-                <div class="bg-white ps-3 py-2 rounded-2">
+                <div class="bg-white ps-2 py-1 rounded-2">
                     @php
                         use App\Models\Kriteria;
                         $kriterias = Kriteria::with('subKriteria')->get();
@@ -95,8 +111,8 @@
 
                     @foreach ($kriterias as $kriteria)
                         <a href="{{ route('admin.kriteria.subkriteria.index', ['nama_kriteria' => $kriteria->nama_kriteria]) }}"
-                            class="d-block py-1 px-2 nav-link text-dark {{ request()->is('admin/kriteria/subkriteria/' . $kriteria->nama_kriteria) ? 'fw-semibold text-primary' : 'text-muted' }}"
-                            style="font-size: 0.85rem;">
+                            class="d-block nav-link {{ request()->is('admin/kriteria/subkriteria/' . $kriteria->nama_kriteria) ? 'fw-bold text-dark' : 'text-dark' }}"
+                            style="font-size: 0.82rem; padding: 3px 6px; line-height: 1.2;">
                             <i class="bi bi-chevron-right small me-1"></i>{{ $kriteria->nama_kriteria }}
                         </a>
                     @endforeach
@@ -136,16 +152,20 @@
                     <span>Data Pakaian</span></a>
             </li>
 
+            <!-- Nav Item - Penilaian -->
+            <li class="nav-item {{ request()->is('admin/penilaian') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('admin.penilaian.index') }}">
+                    <i class="bi bi-calculator"></i>
+                    <span>Penilaian</span></a>
+            </li>
 
             <!-- Nav Item - Hasil Akhir -->
             <li class="nav-item {{ request()->is('admin/riwayat') ? 'active' : '' }}">
                 <a class="nav-link" href="#">
                     <i class="bi bi-hourglass-split"></i>
-                    <span>Riwayat</span>
+                    <span>Riwayat User</span>
                 </a>
             </li>
-
-
 
             <!-- Divider -->
             <hr class="sidebar-divider">
@@ -223,13 +243,6 @@
             <!-- End of Main Content -->
 
             <!-- Footer -->
-            <footer class="sticky-footer bg-white">
-                <div class="container my-auto">
-                    <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; Your Website 2020</span>
-                    </div>
-                </div>
-            </footer>
             <!-- End of Footer -->
 
         </div>

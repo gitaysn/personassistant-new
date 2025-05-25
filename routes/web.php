@@ -2,14 +2,15 @@
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\KriteriaController;
-use App\Http\Controllers\Admin\AuthController;
-use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Landingpage\HomeController;
-use App\Http\Controllers\SubKriteriaController;
-use App\Http\Controllers\Admin\ResetPasswordController;
 use App\Http\Controllers\PakaianController;
+use App\Http\Controllers\KriteriaController;
+use App\Http\Controllers\PenilaianController;
+use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\SubKriteriaController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\SubKriteriaShowController;
+use App\Http\Controllers\Landingpage\HomeController;
+use App\Http\Controllers\Admin\ResetPasswordController;
 
 /*
 |--------------------------------------------------------------------------
@@ -65,6 +66,7 @@ Route::prefix('admin')->middleware(['auth'])->as('admin.')->group(function () {
     Route::get('kriteria/subkriteria/{nama_kriteria}', [SubKriteriaShowController::class, 'indexShow'])->name('kriteria.subkriteria.index');
 
     Route::resource('pakaian', PakaianController::class);
+    Route::resource('penilaian', PenilaianController::class);
 });
 
 // // Kriteria

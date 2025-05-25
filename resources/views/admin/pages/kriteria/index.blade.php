@@ -41,7 +41,7 @@
                                 <td class="text-center">{{ $key + 1 }}</td>
                                 <td class="text-center">{{ $item->kode_kriteria }}</td>
                                 <td class="text-center">{{ $item->nama_kriteria }}</td>
-                                <td class="text-center">{{ $item->bobot }}</td>
+                                <td class="text-center">{{ number_format($item->bobot, 2) }}</td>
                                 <td class="text-center">{{ $item->jenis }}</td>
                                 <td class="text-center">
                                     <div class="d-flex justify-content-center">

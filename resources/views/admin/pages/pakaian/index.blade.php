@@ -1,10 +1,56 @@
 @extends('admin.layouts.base')
 
-@section('title', 'Data Alternatif')
+@section('title', 'Data Pakaian')
 
 @section('content')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <style>
+        .search-input {
+        width: 200px;
+    }
+
+    .btn-biru {
+        background-color: #007bff; /* biru Bootstrap */
+        color: white;
+        border: none;
+        padding: 6px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .btn-biru:hover {
+        background-color: #0069d9;
+    }
+
+    .search-box {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .search-box input[type="text"] {
+        padding: 6px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    .modern-select {
+        padding: 6px 12px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+        background-color: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        transition: border 0.2s ease-in-out;
+    }
+
+    .modern-select:focus {
+        border-color: #0d6efd;
+        outline: none;
+    }
+    </style>
     @if (session('success'))
         <script>
             Swal.fire({
@@ -18,14 +64,14 @@
     @endif
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 text-grey-800">
-            <i class="bi bi-boxes"></i> Data Alternatif
+            <i class="bi bi-boxes"></i> Data Pakaian
         </h1>
     </div>
 
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h6 class="m-0 font-weight-bold" style="color: #064E3B;">
-                <i class="bi bi-table"></i> Daftar Data Alternatif
+                <i class="bi bi-table"></i> Daftar Data Pakaian
             </h6>
             <button type="button" class="btn" style="background-color: #064E3B; color: white;" data-bs-toggle="modal"
                 data-bs-target="#modalTambah">
@@ -35,134 +81,137 @@
 
         <div class="card-body">
             <form method="GET" id="entriesForm" action="{{ route('admin.pakaian.index') }}"
-            class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+                class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
 
-            {{-- KIRI --}}
-            <div class="d-flex align-items-center">
-                <label for="entriesPerPage" class="me-2 mb-0">Show</label>
-                <select name="entries" id="entriesPerPage" class="form-select form-select-sm me-2"
-                    onchange="document.getElementById('entriesForm').submit()">
-                    <option value="10" {{ request('entries') == 10 ? 'selected' : '' }}>10</option>
-                    <option value="25" {{ request('entries') == 25 ? 'selected' : '' }}>25</option>
-                    <option value="50" {{ request('entries') == 50 ? 'selected' : '' }}>50</option>
-                </select>
-                <span class="mb-0">entries</span>
-            </div>
+                {{-- KIRI --}}
+                <div class="d-flex align-items-center gap-2 mb-2 mb-md-0">
+                    <label for="entriesPerPage" class="mb-0 text-muted fw-semibold" style="margin-right: 8px;">Show</label>
+                    <select name="entries" id="entriesPerPage" class="modern-select" style="margin-right: 8px;"
+                        onchange="document.getElementById('entriesForm').submit()">
+                        <option value="10" {{ request('entries') == 10 ? 'selected' : '' }}>10</option>
+                        <option value="25" {{ request('entries') == 25 ? 'selected' : '' }}>25</option>
+                        <option value="50" {{ request('entries') == 50 ? 'selected' : '' }}>50</option>
+                    </select>
 
-            {{-- KANAN --}}
-            <div class="d-flex align-items-center">
-                <label for="search" class="me-2 mb-0">Search:</label>
-                <input type="text" name="search" id="search" class="form-control form-control-sm me-3" placeholder="Search..."
-                    value="{{ request('search') }}">
-                <button type="submit" class="btn btn-sm btn-primary">Cari</button>
-            </div>
-
-        </form>
-
-            <div class="table-responsive">
-                <table class="table table-bordered">
-                    <thead class="table-light text-center">
-                        <tr>
-                            <th>No</th>
-                            <th>Gambar</th>
-                            <th>Nama Pakaian</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @php $no = ($alternatif->currentPage() - 1) * $alternatif->perPage() + 1; @endphp
-                        @foreach ($alternatif as $item)
-                            <tr class="text-center">
-                                <td>{{ $no++ }}</td>
-                                <td class="text-center">
-                                    @if ($item->img)
-                                        <img src="{{ asset($item->img) }}" alt="Gambar"
-                                            class="img-fluid rounded object-fit-cover"
-                                            style="width: 100px; height: 100px; object-fit: cover;">
-                                    @else
-                                        Tidak ada gambar
-                                    @endif
-                                </td>
-                                <td>{{ $item->nama_pakaian }}</td>
-                                <td class="text-center">
-                                    <!-- Tombol Info -->
-                                    <button class="btn btn-info btn-sm" data-bs-toggle="modal"
-                                        data-bs-target="#infoModal{{ $item->id }}">
-                                        <i class="bi bi-info-circle-fill"></i>
-                                    </button>
-
-                                    <!-- Tombol Edit -->
-                                    <button class="btn btn-warning btn-sm" data-bs-toggle="modal"
-                                        data-bs-target="#modalEdit{{ $item->id }}">
-                                         <i class="bi bi-pencil"></i>
-                                    </button>
-
-                                    @foreach ($alternatif as $item)
-                                        <!-- Modal Info -->
-                                        <div class="modal fade" id="infoModal{{ $item->id }}" tabindex="-1"
-                                            aria-labelledby="infoModalLabel{{ $item->id }}" aria-hidden="true">
-                                            <div class="modal-dialog modal-lg">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="infoModalLabel{{ $item->id }}">
-                                                            Detail Subkriteria - {{ $item->nama_pakaian }}
-                                                        </h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                            aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <table class="table table-bordered">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th>Kriteria</th>
-                                                                    <th>Subkriteria</th>
-                                                                    <th>Nilai</th>
-                                                                    <th>Range Harga</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                @foreach ($item->subKriterias as $sub)
-                                                                    <tr>
-                                                                        <td>{{ $sub->kriteria->nama_kriteria ?? '-' }}</td>
-                                                                        <td>{{ $sub->nama_sub }}</td>
-                                                                        <td>{{ $sub->nilai }}</td>
-                                                                        <td>
-                                                                            @if ($sub->kriteria->nama_kriteria === 'Harga')
-                                                                                Rp{{ number_format($sub->min_harga, 0, ',', '.') }}
-                                                                                -
-                                                                                Rp{{ number_format($sub->max_harga, 0, ',', '.') }}
-                                                                            @else
-                                                                                -
-                                                                            @endif
-                                                                        </td>
-                                                                    </tr>
-                                                                @endforeach
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary"
-                                                            data-bs-dismiss="modal">Tutup</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endforeach
-
-                                </td>
-
+                    <span class="text-muted fw-semibold">entries</span>
+                </div>
+                {{-- KANAN --}}
+                <div class="d-flex align-items-center" style="gap: 10px;">
+                    <input type="text" name="search" value="{{ request('search') }}"
+                        class="form-control form-control-sm" placeholder="Cari nama pakaian...">
+                    <button type="submit" class="btn btn-success btn-sm" style="background-color: #14532d; border-color: #14532d;">
+                        Cari
+                    </button>
+                </div>
+            </form>
+        </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered border-secondary table-striped align-middle text-center">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">No</th>
+                                <th scope="col">Gambar</th>
+                                <th scope="col">Nama Pakaian</th>
+                                <th scope="col">Harga</th>
+                                <th scope="col">Aksi</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach ($alternatif as $index => $item)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>
+                                        @if ($item->img)
+                                            <img src="{{ asset($item->img) }}" alt="Gambar" class="img-thumbnail" style="width: 100px; height: 100px;">
+                                        @else
+                                            <span class="text-muted">Tidak ada gambar</span>
+                                        @endif
+                                    </td>
+                                    <td>{{ $item->nama_pakaian }}</td>
+                                    <td>Rp{{ number_format($item->harga, 0, ',', '.') }}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#infoModal{{ $item->id }}">
+                                            <i class="bi bi-info-circle"></i>
+                                        </button>
+                                        <a href="{{ route('admin.pakaian.edit', $item->id) }}" class="btn btn-warning btn-sm">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-danger btn-sm btn-delete" data-id="{{ $item->id }}" data-nama="{{ $item->nama_pakaian }}">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+
+                                        <!-- Form Hapus (disembunyikan) -->
+                                        <form id="delete-form-{{ $item->id }}" action="{{ route('admin.pakaian.destroy', $item->id) }}" method="POST" style="display: none;">
+                                            @csrf
+                                            @method('DELETE')
+                                        </form>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Pagination -->
+                <div class="d-flex justify-content-end">
+                    {{ $alternatif->appends(request()->query())->links('vendor.pagination.bootstrap-5') }}
+                </div>
+
+                <!-- Modal Info --> 
+                @foreach ($alternatif as $item)
+                    <div class="modal fade" id="infoModal{{ $item->id }}" tabindex="-1"
+                        aria-labelledby="infoModalLabel{{ $item->id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="infoModalLabel{{ $item->id }}">
+                                        Detail Subkriteria - {{ $item->nama_pakaian }}
+                                    </h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Kriteria</th>
+                                                <th>Subkriteria</th>
+                                                <th>Nilai</th>
+                                                <th>Range Harga</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($item->subKriterias as $sub)
+                                                <tr>
+                                                    <td>{{ $sub->kriteria->nama_kriteria ?? '-' }}</td>
+                                                    <td>{{ $sub->nama_sub }}</td>
+                                                    <td>{{ $sub->nilai }}</td>
+                                                    <td>
+                                                        @if ($sub->kriteria->nama_kriteria === 'Harga')
+                                                            Rp{{ number_format($sub->min_harga, 0, ',', '.') }}
+                                                            -
+                                                            Rp{{ number_format($sub->max_harga, 0, ',', '.') }}
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Tutup</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
 
                 <!-- Pagination -->
                 <div class="d-flex justify-content-end">
                     {{ $alternatif->appends(request()->query())->links('vendor.pagination.bootstrap-5') }}
                 </div>
-            </div>
-        </div>
-    </div>
     
     <!-- Modal Tambah Data Pakaian -->
     <div class="modal fade" id="modalTambah" tabindex="-1" aria-labelledby="modalTambahLabel" aria-hidden="true">
@@ -367,4 +416,35 @@
             background-color: #0056b3;
         }
     </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const deleteButtons = document.querySelectorAll(".btn-delete");
+
+        deleteButtons.forEach(button => {
+            button.addEventListener("click", function () {
+                const id = this.getAttribute("data-id");
+                const nama = this.getAttribute("data-nama");
+
+                Swal.fire({
+                    title: 'Hapus Data?',
+                    text: `Data pakaian "${nama}" akan dihapus!`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Ya, hapus!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById(`delete-form-${id}`).submit();
+                    }
+                });
+            });
+        });
+    });
+</script>
+
 @endsection

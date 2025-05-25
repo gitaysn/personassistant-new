@@ -36,7 +36,7 @@ class KriteriaController extends Controller
         $request->validate([
             'kode_kriteria' => 'required',
             'nama_kriteria' => 'required',
-            'bobot' => 'required',
+            'bobot' => ['required', 'regex:/^\d+\.\d+$/'],
             'jenis' => 'required',
         ]);
 

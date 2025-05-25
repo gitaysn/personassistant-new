@@ -15,22 +15,18 @@ class PakaianController extends Controller
     {
         $kriteria = Kriteria::all();
 
-        // Ambil relasi pakaian dan subkriteria dengan kriteria-nya
-        $query = Pakaian::with(['subKriterias.kriteria']);
-
-        // Filter search nama pakaian
-        if ($request->filled('search')) {
-            $query->where('nama_pakaian', 'like', '%' . $request->search . '%');
-        }
-
         $perPage = $request->input('entries', 10);
-        $alternatif = $query->paginate($perPage)->appends($request->query());
+        $search = $request->input('search');
+
+        $alternatif = Pakaian::with(['subKriterias.kriteria'])
+            ->when($search, function ($query, $search) {
+                $query->where('nama_pakaian', 'like', '%' . $search . '%');
+            })
+            ->paginate($perPage)
+            ->appends($request->query());
 
         return view('admin.pages.pakaian.index', compact('kriteria', 'alternatif'));
     }
-
-
-
 
     /**
      * Show the form for creating a new resource.
@@ -124,6 +120,19 @@ class PakaianController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $pakaian = Pakaian::findOrFail($id);
+
+        // Hapus gambar dari storage jika ada
+        if ($pakaian->img && file_exists(public_path($pakaian->img))) {
+            unlink(public_path($pakaian->img));
+        }
+
+        // Hapus relasi subkriteria (pivot table)
+        $pakaian->subKriterias()->detach();
+
+        // Hapus data pakaian dari database
+        $pakaian->delete();
+
+        return redirect()->route('admin.pakaian.index')->with('success', 'Data pakaian berhasil dihapus.');
     }
 }

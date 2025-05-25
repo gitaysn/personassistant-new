@@ -1,11 +1,11 @@
 @extends('admin.layouts.base')
 
-@section('title', 'Penilaian Alternatif')
+@section('title', 'Penilaian Pakaian')
 
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h3 text-grey-800">
-        <i class="bi bi-box"></i> Penilaian Alternatif
+        <i class="bi bi-box"></i> Penilaian Pakaian
     </h1> 
 </div>
 
@@ -53,7 +53,7 @@
     }
 
     .btn-biru {
-        background-color: #007bff; /* biru Bootstrap */
+        background-color: #007bff;
         color: white;
         border: none;
         padding: 6px 16px;
@@ -69,70 +69,93 @@
         display: flex;
         gap: 8px;
         align-items: center;
-        margin-bottom: 12px;
     }
 
-    .search-box input[type="text"] {
-        padding: 6px;
+    .modern-select {
+        padding: 6px 12px;
+        border-radius: 8px;
         border: 1px solid #ccc;
-        border-radius: 4px;
+        font-size: 14px;
+        background-color: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        transition: border 0.2s ease-in-out;
     }
 
+    .modern-select:focus {
+        border-color: #0d6efd;
+        outline: none;
+    }
 </style>
 
 <div class="card shadow mb-4">
     <div class="card-header py-3 d-flex justify-content-between align-items-center">
         <h6 class="m-0 font-weight-bold" style="color: #064E3B;">
-            <i class="bi bi-table"></i> Daftar Penilaian Alternatif
+            <i class="bi bi-table"></i> Daftar Penilaian Pakaian
         </h6>
     </div>
 
     <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <form method="GET" class="d-flex align-items-center gap-2">
-                <label for="entriesPerPage" class="mb-0">Show</label>
-                <select name="perPage" id="entriesPerPage" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
-                    <option value="10" {{ request('perPage') == 10 ? 'selected' : '' }}>10</option>
-                    <option value="30" {{ request('perPage') == 30 ? 'selected' : '' }}>30</option>
-                    <option value="50" {{ request('perPage') == 50 ? 'selected' : '' }}>50</option>
+        {{-- GABUNGKAN FORM --}}
+        <form method="GET" action="{{ route('admin.penilaian.index') }}" class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+            <div class="d-flex align-items-center gap-2 mb-2 mb-md-0">
+                <label for="entriesPerPage" class="mb-0 text-muted fw-semibold" style="margin-right: 12px;">Show</label>
+                <select name="entries" id="entriesPerPage" class="modern-select" onchange="this.form.submit()">
+                    <option value="10" {{ request('entries') == 10 ? 'selected' : '' }}>10</option>
+                    <option value="25" {{ request('entries') == 25 ? 'selected' : '' }}>25</option>
+                    <option value="50" {{ request('entries') == 50 ? 'selected' : '' }}>50</option>
                 </select>
-                <span class="mb-0">entries</span>
-            </form>            
+                <span class="text-muted fw-semibold" style="margin-left: 12px;">entries</span>
+            </div>
 
-            <form action="{{ route('admin.penilaian.index') }}" method="GET" class="search-box">
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama alternatif...">
-                <button type="submit" class="btn-biru">Cari</button>
-            </form>
-        </div>
+            <div class="search-box">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama alternatif..." class="form-control form-control-sm search-input">
+                <button type="submit" class="btn btn-sm" style="background-color: #14532d; color: white;">Cari</button>
+            </div>
+        </form>
 
         <div class="table-responsive">
             <table class="table table-bordered" width="100%" cellspacing="0">
                 <thead>
                     <tr>
                         <th class="text-center">No</th>
-                        <th class="text-center">Nama Alternatif</th>
-                        <th class="text-center">C1</th>
-                        <th class="text-center">C2</th>
-                        <th class="text-center">C3</th>
-                        <th class="text-center">C4</th>
-                        <th class="text-center">C5</th>
-                        <th class="text-center">C6</th>
+                        <th class="text-center">Nama Pakaian</th>
+                        {{-- Header Kriteria --}}
+                        @foreach ($kriterias as $kriteria)
+                            <th class="text-center">{{ $kriteria->nama_kriteria }}</th>
+                        @endforeach
                         <th class="text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($data as $key => $item)
+                    @forelse ($pakaians as $item)
                     <tr>
-                        <td class="text-center">{{ $data->firstItem() + $key }}</td>
-                        <td class="text-center">{{ $item->nama_alternatif ?? '-' }}</td>
+                        <td class="text-center">{{ $loop->iteration }}</td>
+                        <td class="text-center">{{ $item->nama_pakaian ?? '-' }}</td>
 
-                        @for ($i = 1; $i <= 6; $i++)
+                        {{-- Subkriteria --}}
+                        @foreach ($kriterias as $kriteria)
                             @php
-                                $penilaian = $item->penilaian->firstWhere('kriteria_id', $i);
-                                $nilai = $penilaian && $penilaian->subkriteria ? $penilaian->subkriteria->nilai : '-';
+                                $subKriterias = $item->subKriterias->where('kriteria_id', $kriteria->id);
+                                $namaSubs = $subKriterias->pluck('nama_sub')->toArray();
                             @endphp
-                            <td class="text-center">{{ $nilai }}</td>
-                        @endfor
+                            <td class="text-center">
+                                @if (count($namaSubs))
+                                    @if ($kriteria->nama_kriteria === 'Jenis Acara')
+                                        <div class="d-flex flex-wrap justify-content-center gap-2">
+                                            @foreach ($namaSubs as $nama)
+                                                <span class="rounded-pill px-3 py-1 bg-light border text-dark small shadow-sm">
+                                                    {{ $nama }}
+                                                </span>
+                                            @endforeach
+                                        </div>
+                                    @else
+                                        {{ $namaSubs[0] ?? '-' }}
+                                    @endif
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
+                            </td>
+                        @endforeach
 
                         <td class="text-center">
                             <a href="{{ route('admin.penilaian.edit', $item->id) }}" class="btn btn-warning btn-sm">
@@ -142,7 +165,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="10" class="text-center">Belum ada data penilaian.</td>
+                        <td colspan="{{ 3 + $kriterias->count() }}" class="text-center">Belum ada data penilaian.</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -150,7 +173,8 @@
         </div>
 
         <div class="mt-3">
-            {{ $data->appends(['perPage' => request('perPage')])->links('pagination::bootstrap-4') }}
+            {{-- BAWA PARAMETER PAGINATION --}}
+            {{ $pakaians->appends(['entries' => request('entries'), 'search' => request('search')])->links('pagination::bootstrap-4') }}
         </div>
     </div>
 </div>
@@ -170,21 +194,4 @@
 </script>
 @endif
 
-<script>
-function searchFunction() {
-    var input, filter, table, tr, td, i, txtValue;
-    input = document.getElementById('search');
-    filter = input.value.toUpperCase();
-    table = document.querySelector("table");
-    tr = table.getElementsByTagName("tr");
-
-    for (i = 1; i < tr.length; i++) { // Start from 1 to skip the header
-        td = tr[i].getElementsByTagName("td")[1]; // Column 2 = Nama Alternatif
-        if (td) {
-            txtValue = td.textContent || td.innerText;
-            tr[i].style.display = txtValue.toUpperCase().indexOf(filter) > -1 ? "" : "none";
-        }
-    }
-}
-</script>
 @endsection

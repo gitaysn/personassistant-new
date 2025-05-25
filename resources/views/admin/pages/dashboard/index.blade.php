@@ -64,8 +64,6 @@
  <!-- Content Row -->
  <div class="row">
 
-    <div class="row">
-
         <!-- Data Kriteria -->
         <div class="col-xl-4 col-md-6 mb-4">
             <a href="#">
@@ -112,6 +110,22 @@
                     </div>
                 </div>
             </a>
+        </div>
+
+        <!-- Card Area Chart -->
+        <div class="col-xl-12 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header d-flex align-items-center py-2">
+                    <h6 class="m-0 font-weight-bold text-dark">Statistik Pengunjung</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="myAreaChart"></canvas>
+                    </div>
+                    <hr>
+                    
+                </div>
+            </div>
         </div>
 
         {{-- <!-- Data Penilaian -->
