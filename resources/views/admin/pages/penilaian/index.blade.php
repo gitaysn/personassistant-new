@@ -108,7 +108,7 @@
             </div>
 
             <div class="search-box">
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama alternatif..." class="form-control form-control-sm search-input">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama pakaian..." class="form-control form-control-sm search-input">
                 <button type="submit" class="btn btn-sm" style="background-color: #14532d; color: white;">Cari</button>
             </div>
         </form>
