@@ -2,11 +2,13 @@
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\PakaianController;
 use App\Http\Controllers\KriteriaController;
 use App\Http\Controllers\PenilaianController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\SubKriteriaController;
+use App\Http\Controllers\Admin\RiwayatController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\SubKriteriaShowController;
 use App\Http\Controllers\Landingpage\HomeController;
@@ -67,7 +69,10 @@ Route::prefix('admin')->middleware(['auth'])->as('admin.')->group(function () {
 
     Route::resource('pakaian', PakaianController::class);
     Route::resource('penilaian', PenilaianController::class);
+    Route::resource('user', UserController::class);
 });
+
+Route::get('riwayat', [RiwayatController::class, 'index'])->name('riwayat.index');
 
 // // Kriteria
 // Route::get('/kriteria', [DataKriteriaController::class, 'indexPage'])->name('admin.kriteria.index');

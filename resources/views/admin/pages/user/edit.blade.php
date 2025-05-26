@@ -21,7 +21,7 @@
             </div>
         @endif
 
-        <form action="{{ route('user.update', $user->id) }}" method="POST">
+        <form action="{{ route('admin.user.update', $user->id) }}" method="POST">
             @csrf
             @method('PUT')
             <div class="mb-3">
@@ -47,7 +47,7 @@
             <button type="submit" class="btn btn-success" style="background-color: #064e03; border-color: #064e03;">
                 Simpan
             </button>
-            <a href="{{ route('user.show', $user->id) }}" class="btn btn-success" style="background-color: #a6f4a3; border-color: #a6f4a3; color: #064e03;">
+            <a href="{{ route('admin.user.show', $user->id) }}" class="btn btn-success" style="background-color: #a6f4a3; border-color: #a6f4a3; color: #064e03;">
                 Kembali
             </a>
         </form>

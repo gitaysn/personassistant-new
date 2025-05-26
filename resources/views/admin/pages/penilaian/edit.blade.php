@@ -76,43 +76,48 @@
             </div>
 
             <div class="row">
-                @foreach ($kriterias as $kriteria)
+            @foreach ($kriterias as $kriteria)
                 <div class="col-md-6 mb-3">
                     <label class="form-label fw-semibold">{{ $kriteria->nama_kriteria }}</label>
 
-                    @if(in_array($kriteria->nama_kriteria, ['Jenis Acara', 'Lokasi', 'Cuaca']))
-                        {{-- Checkbox group untuk multiple select --}}
+                    @if(in_array($kriteria->id, $multiSelectKriteriaIds))
+                        {{-- Multiple select: checkbox group --}}
                         <div class="checkbox-group d-flex flex-wrap gap-2">
                             @foreach ($kriteria->subKriteria as $subkriteria)
                                 <div class="form-check">
-                                    <input type="checkbox" 
+                                    <input 
+                                        type="checkbox" 
                                         name="nilai[{{ $kriteria->id }}][]" 
                                         value="{{ $subkriteria->id }}" 
                                         id="sub_{{ $kriteria->id }}_{{ $subkriteria->id }}"
                                         class="form-check-input"
-                                        {{ (isset($nilai[$kriteria->id]) && in_array($subkriteria->id, (array) $nilai[$kriteria->id])) ? 'checked' : '' }}>
-                                    <label for="sub_{{ $kriteria->id }}_{{ $subkriteria->id }}" class="form-check-label cursor-pointer">
+                                        {{ (isset($nilai[$kriteria->id]) && in_array($subkriteria->id, (array) $nilai[$kriteria->id])) ? 'checked' : '' }}
+                                    >
+                                    <label class="form-check-label" for="sub_{{ $kriteria->id }}_{{ $subkriteria->id }}">
                                         {{ $subkriteria->nama_sub }}
                                     </label>
                                 </div>
                             @endforeach
                         </div>
-                            <small class="form-text text-muted">Pilih satu atau lebih</small>
-                        @else
-                            {{-- Dropdown biasa untuk single select --}}
-                            <select class="form-control" name="nilai[{{ $kriteria->id }}]" required>
-                                <option value="">-- Pilih --</option>
-                                @foreach ($kriteria->subKriteria as $subkriteria)
-                                    <option value="{{ $subkriteria->id }}"
-                                        {{ isset($nilai[$kriteria->id]) && $nilai[$kriteria->id] == $subkriteria->id ? 'selected' : '' }}>
-                                        {{ $subkriteria->nama_sub }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        @endif
-                    </div>
-                @endforeach
-            </div>
+                        <small class="form-text text-muted">Pilih satu atau lebih</small>
+
+                    @else
+                        {{-- Single select: dropdown --}}
+                        <select class="form-control" name="nilai[{{ $kriteria->id }}]" required>
+                            <option value="">-- Pilih --</option>
+                            @foreach ($kriteria->subKriteria as $subkriteria)
+                                <option 
+                                    value="{{ $subkriteria->id }}" 
+                                    {{ isset($nilai[$kriteria->id]) && $nilai[$kriteria->id] == $subkriteria->id ? 'selected' : '' }}
+                                >
+                                    {{ $subkriteria->nama_sub }}
+                                </option>
+                            @endforeach
+                        </select>
+                    @endif
+                </div>
+            @endforeach
+        </div>
             <button type="submit" class="btn" style="background-color: #064E3B; color: white;">
                 Simpan
             </button>

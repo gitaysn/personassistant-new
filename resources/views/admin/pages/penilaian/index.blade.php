@@ -140,7 +140,7 @@
                             @endphp
                             <td class="text-center">
                                 @if (count($namaSubs))
-                                    @if ($kriteria->nama_kriteria === 'Jenis Acara')
+                                    @if (in_array($kriteria->nama_kriteria, ['Jenis Acara', 'Lokasi Acara', 'Cuaca Acara']))
                                         <div class="d-flex flex-wrap justify-content-center gap-2">
                                             @foreach ($namaSubs as $nama)
                                                 <span class="rounded-pill px-3 py-1 bg-light border text-dark small shadow-sm">

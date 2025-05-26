@@ -44,7 +44,7 @@ class SubKriteriaController extends Controller
         $validated = $request->validate([
             'kriteria_id' => 'required',
             'nama_sub' => 'required|string|max:255',
-            'nilai' => 'required|numeric',
+            'nilai' => 'required|integer|min:1|max:5',
             'min_harga' => 'nullable|numeric|min:0',
             'max_harga' => 'nullable|numeric|min:0|gte:min_harga',
         ]);
@@ -86,7 +86,7 @@ class SubKriteriaController extends Controller
         $request->validate([
             'kriteria_id' => 'required',
             'nama_sub' => 'required|string|max:255',
-            'nilai' => 'required|numeric',
+            'nilai' => 'required|integer|min:1|max:5',
             'min_harga' => 'nullable|numeric',
             'max_harga' => 'nullable|numeric',
         ]);

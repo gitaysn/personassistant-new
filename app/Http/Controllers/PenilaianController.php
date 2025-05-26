@@ -21,7 +21,7 @@ class PenilaianController extends Controller
         }
 
         // Ambil jumlah per halaman dari parameter 'perPage' atau default ke 10
-        $perPage = $request->get('perPage', 10);
+        $perPage = $request->get('entries', 10);
 
         // Ambil data pakaian dengan pagination
         $pakaians = $query->paginate($perPage);
@@ -68,8 +68,27 @@ class PenilaianController extends Controller
         // Ambil semua kriteria, supaya bisa ditampilkan di form edit untuk memilih/mengubah subkriteria
         $kriterias = Kriteria::with('subKriteria')->get();
 
-        // Kirim data ke view edit
-        return view('admin.pages.penilaian.edit', compact('pakaian', 'kriterias'));
+        // Ambil ID kriteria yang multiple select
+        $multiSelectKriteriaIds = Kriteria::whereIn('nama_kriteria', ['Jenis Acara', 'Lokasi Acara', 'Cuaca'])->pluck('id')->toArray();
+
+        // Kirim juga nilai penilaian yang sudah disimpan
+        $nilai = [];
+        foreach ($pakaian->subKriterias as $sub) {
+            $kriteriaId = $sub->kriteria->id;
+            // Untuk multiple, buat array; untuk single, overwrite
+            if (in_array($kriteriaId, $multiSelectKriteriaIds)) {
+                $nilai[$kriteriaId][] = $sub->id;
+            } else {
+                $nilai[$kriteriaId] = $sub->id;
+            }
+        }
+
+        return view('admin.pages.penilaian.edit', compact(
+            'pakaian',
+            'kriterias',
+            'multiSelectKriteriaIds',
+            'nilai'
+        ));
     }
 
     /**
@@ -85,16 +104,20 @@ class PenilaianController extends Controller
         $rules = [];
         $messages = [];
 
+        $allKriteria = Kriteria::all()->keyBy('id');
+
         foreach ($request->input('nilai') as $kriteriaId => $value) {
+            if (!isset($allKriteria[$kriteriaId])) continue;
+
+            $nama = $allKriteria[$kriteriaId]->nama_kriteria;
+
             if (in_array($kriteriaId, $multiSelectKriteria)) {
-                // Kriteria yang multiple select wajib berupa array dengan minimal 1 elemen
                 $rules["nilai.$kriteriaId"] = 'required|array|min:1';
-                $messages["nilai.$kriteriaId.required"] = 'Harap pilih minimal satu subkriteria untuk kriteria ' . Kriteria::find($kriteriaId)->nama_kriteria;
-                $messages["nilai.$kriteriaId.min"] = 'Harap pilih minimal satu subkriteria untuk kriteria ' . Kriteria::find($kriteriaId)->nama_kriteria;
+                $messages["nilai.$kriteriaId.required"] = "Pilih minimal satu subkriteria untuk $nama.";
+                $messages["nilai.$kriteriaId.min"] = "Pilih minimal satu subkriteria untuk $nama.";
             } else {
-                // Kriteria yang single select wajib ada (string / integer)
                 $rules["nilai.$kriteriaId"] = 'required';
-                $messages["nilai.$kriteriaId.required"] = 'Harap pilih satu subkriteria untuk kriteria ' . Kriteria::find($kriteriaId)->nama_kriteria;
+                $messages["nilai.$kriteriaId.required"] = "Pilih satu subkriteria untuk $nama.";
             }
         }
 

@@ -212,11 +212,12 @@
                                 aria-labelledby="userDropdown">
 
                                 <!-- Profile Link -->
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Profile
-                                </a>
-                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="{{ route('admin.user.show', Auth::user()->id) }}">
+    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+    Profile
+</a>
+<div class="dropdown-divider"></div>
+
 
                                 <!-- Logout Link -->
                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">

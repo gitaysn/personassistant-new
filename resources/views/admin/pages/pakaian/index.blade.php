@@ -122,7 +122,7 @@
                                     <td>{{ $loop->iteration }}</td>
                                     <td>
                                         @if ($item->img)
-                                            <img src="{{ asset($item->img) }}" alt="Gambar" class="img-thumbnail" style="width: 100px; height: 100px;">
+                                            <img src="{{ asset($item->img) }}" alt="Gambar" style="width: 100px; height: 100px;">
                                         @else
                                             <span class="text-muted">Tidak ada gambar</span>
                                         @endif
@@ -133,7 +133,7 @@
                                         <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#infoModal{{ $item->id }}">
                                             <i class="bi bi-info-circle"></i>
                                         </button>
-                                        <a href="{{ route('admin.pakaian.edit', $item->id) }}" class="btn btn-warning btn-sm">
+                                        <a href="#" class="btn btn-warning btn-sm edit-button" data-id="{{ $item->id }}" data-bs-toggle="modal" data-bs-target="#modalEdit{{ $item->id }}">
                                             <i class="bi bi-pencil-square"></i>
                                         </a>
                                         <button type="button" class="btn btn-danger btn-sm btn-delete" data-id="{{ $item->id }}" data-nama="{{ $item->nama_pakaian }}">
@@ -150,10 +150,6 @@
                             @endforeach
                         </tbody>
                     </table>
-                </div>
-                <!-- Pagination -->
-                <div class="d-flex justify-content-end">
-                    {{ $alternatif->appends(request()->query())->links('vendor.pagination.bootstrap-5') }}
                 </div>
 
                 <!-- Modal Info --> 

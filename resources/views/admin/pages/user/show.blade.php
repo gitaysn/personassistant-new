@@ -36,7 +36,7 @@
         </table>
 
         <div class="mt-4 text-end">
-            <a href="{{ route('user.edit', $user->id) }}" class="btn" style="background-color: #064e03; color: white;">
+            <a href="{{ route('admin.user.edit', $user->id) }}" class="btn" style="background-color: #064e03; color: white;">
                 <i class="bi bi-pencil-square"></i> Edit Profil
             </a>
         </div>
