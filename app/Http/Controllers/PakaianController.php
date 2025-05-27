@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Kriteria;
 use App\Models\Pakaian;
+use App\Models\Kriteria;
+use App\Models\SubKriteria;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class PakaianController extends Controller
 {
@@ -31,10 +34,13 @@ class PakaianController extends Controller
     /**
      * Show the form for creating a new resource.
      */
+
     public function create()
     {
-        //
+        $kriterias = Kriteria::with('subKriteria')->get(); // load kriteria + sub_kriterias
+        return view('admin.pages.pakaian.create', compact('kriterias'));
     }
+
 
     /**
      * Store a newly created resource in storage.
@@ -45,23 +51,44 @@ class PakaianController extends Controller
             'nama_pakaian' => 'required|string|max:255',
             'harga' => 'required|numeric',
             'img' => 'nullable|image|max:2048',
+            'sub_kriterias' => 'array|nullable',
         ]);
 
-        $imgPath = null;
-        if ($request->hasFile('img')) {
-            $imgPath = $request->file('img')->store('uploads/pakaian', 'public');
+        DB::beginTransaction();
+
+        try {
+            // Upload image jika ada
+            $path = null;
+            if ($request->hasFile('img')) {
+                $path = $request->file('img')->store('pakaian', 'public');
+            }
+
+            // Simpan pakaian
+            $pakaian = Pakaian::create([
+                'nama_pakaian' => $request->nama_pakaian,
+                'harga' => $request->harga,
+                'img' => $path,
+            ]);
+
+            // Simpan relasi sub kriteria
+            if ($request->filled('sub_kriterias')) {
+                $pakaian->subKriterias()->sync($request->sub_kriterias);
+            }
+
+            DB::commit();
+
+            return redirect()->route('admin.pakaian.index')->with('success', 'Pakaian berhasil ditambahkan.');
+        } catch (\Exception $e) {
+            // Rollback semua jika ada error
+            DB::rollBack();
+
+            // Hapus file yang sudah di-upload jika perlu
+            if ($path && Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+            }
+
+            return redirect()->back()->with('error', 'Gagal menambahkan pakaian: ' . $e->getMessage());
         }
-
-        $pakaian = Pakaian::create([
-            'nama_pakaian' => $request->nama_pakaian,
-            'harga' => $request->harga,
-            'img' => $imgPath ? 'storage/' . $imgPath : null,
-        ]);
-
-        // Simpan relasi subkriteria (many-to-many)
-        $pakaian->subKriterias()->sync($request->subkriterias);
-
-        return redirect()->route('admin.pakaian.index')->with('success', 'Data pakaian berhasil ditambahkan.');
     }
 
 
@@ -76,42 +103,58 @@ class PakaianController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit($id)
     {
-        //
+        $pakaian = Pakaian::with('subKriterias')->findOrFail($id);
+        $kriterias = Kriteria::with('subKriteria')->get();
+
+        return view('admin.pages.pakaian.edit', compact('pakaian', 'kriterias'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, $id)
     {
         $request->validate([
             'nama_pakaian' => 'required|string|max:255',
-            'harga' => 'required|numeric|min:0',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'harga' => 'required|numeric',
+            'img' => 'nullable|image|max:2048',
+            'sub_kriterias' => 'array|nullable',
         ]);
 
-        $pakaian = Pakaian::findOrFail($id);
-        $pakaian->nama_pakaian = $request->nama_pakaian;
-        $pakaian->harga = $request->harga;
+        DB::beginTransaction();
 
-        // Jika upload gambar baru
-        if ($request->hasFile('gambar')) {
-            if ($pakaian->img && file_exists(public_path($pakaian->img))) {
-                unlink(public_path($pakaian->img));
+        try {
+            $pakaian = Pakaian::findOrFail($id);
+            $path = $pakaian->img;
+
+            // Update gambar jika ada file baru
+            if ($request->hasFile('img')) {
+                if ($path && Storage::disk('public')->exists($path)) {
+                    Storage::disk('public')->delete($path);
+                }
+                $path = $request->file('img')->store('pakaian', 'public');
             }
 
-            $file = $request->file('gambar');
-            $path = 'uploads/pakaian/';
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path($path), $filename);
-            $pakaian->img = $path . $filename;
+            $pakaian->update([
+                'nama_pakaian' => $request->nama_pakaian,
+                'harga' => $request->harga,
+                'img' => $path,
+            ]);
+
+            // Update relasi sub_kriterias
+            $pakaian->subKriterias()->sync($request->sub_kriterias ?? []);
+
+            DB::commit();
+
+            return redirect()->route('admin.pakaian.index')->with('success', 'Pakaian berhasil diperbarui.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            if (isset($path) && $request->hasFile('img') && Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+            }
+
+            return redirect()->back()->with('error', 'Gagal memperbarui pakaian: ' . $e->getMessage());
         }
-
-        $pakaian->save();
-
-        return redirect()->back()->with('success', 'Data pakaian berhasil diperbarui!');
     }
 
 
