@@ -11,14 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pakaian_sub_kriterias', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('pakaian_id')->constrained()->onDelete('cascade');
-            $table->foreignId('sub_kriteria_id')->constrained()->onDelete('cascade');
-            $table->timestamps();
-
-            $table->unique(['pakaian_id', 'sub_kriteria_id']);
-        });
+            Schema::create('pakaian_sub_kriterias', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('pakaian_id')->constrained()->onDelete('cascade');
+                $table->foreignId('sub_kriteria_id')->constrained()->onDelete('cascade');
+                $table->timestamps();
+                $table->unique(['pakaian_id', 'sub_kriteria_id']);
+            });
     }
 
     /**

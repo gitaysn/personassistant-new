@@ -25,9 +25,10 @@
 
     <style>
         .sidebar {
-        position: relative;
+            position: relative;
 
-    }
+        }
+
         .bg-gradient-green {
             background-color: #43a047 !important;
             /* hijau medium */
@@ -45,7 +46,6 @@
             padding-top: 8px !important;
             padding-bottom: 8px !important;
         }
-
     </style>
 
 </head>
@@ -92,33 +92,35 @@
 
             <!-- Nav Item - Data Sub Kriteria (Collapse) -->
             <li class="nav-item">
-            <a class="nav-link d-flex justify-content-between align-items-center {{ request()->is('admin/kriteria/subkriteria/*') ? '' : 'collapsed' }}"
-                href="#" data-bs-toggle="collapse" data-bs-target="#collapseSubkriteria" aria-expanded="{{ request()->is('admin/kriteria/subkriteria/*') ? 'true' : 'false' }}"
-                aria-controls="collapseSubkriteria" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
-                <div>
-                    <i class="bi bi-boxes me-2"></i>
-                    <span>Data Sub Kriteria</span>
-                </div>
-                <i class="bi bi-chevron-down small"></i>
-            </a>
+                <a class="nav-link d-flex justify-content-between align-items-center {{ request()->is('admin/kriteria/subkriteria/*') ? '' : 'collapsed' }}"
+                    href="#" data-bs-toggle="collapse" data-bs-target="#collapseSubkriteria"
+                    aria-expanded="{{ request()->is('admin/kriteria/subkriteria/*') ? 'true' : 'false' }}"
+                    aria-controls="collapseSubkriteria" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
+                    <div>
+                        <i class="bi bi-boxes me-2"></i>
+                        <span>Data Sub Kriteria</span>
+                    </div>
+                    <i class="bi bi-chevron-down small"></i>
+                </a>
 
-            <div id="collapseSubkriteria" class="collapse {{ request()->is('admin/kriteria/subkriteria/*') ? 'show' : '' }}">
-                <div class="bg-white ps-2 py-1 rounded-2">
-                    @php
-                        use App\Models\Kriteria;
-                        $kriterias = Kriteria::with('subKriteria')->get();
-                    @endphp
+                <div id="collapseSubkriteria"
+                    class="collapse {{ request()->is('admin/kriteria/subkriteria/*') ? 'show' : '' }}">
+                    <div class="bg-white ps-2 py-1 rounded-2">
+                        @php
+                            use App\Models\Kriteria;
+                            $kriterias = Kriteria::with('subKriteria')->get();
+                        @endphp
 
-                    @foreach ($kriterias as $kriteria)
-                        <a href="{{ route('admin.kriteria.subkriteria.index', ['nama_kriteria' => $kriteria->nama_kriteria]) }}"
-                            class="d-block nav-link {{ request()->is('admin/kriteria/subkriteria/' . $kriteria->nama_kriteria) ? 'fw-bold text-dark' : 'text-dark' }}"
-                            style="font-size: 0.82rem; padding: 3px 6px; line-height: 1.2;">
-                            <i class="bi bi-chevron-right small me-1"></i>{{ $kriteria->nama_kriteria }}
-                        </a>
-                    @endforeach
+                        @foreach ($kriterias as $kriteria)
+                            <a href="{{ route('admin.kriteria.subkriteria.index', ['nama_kriteria' => $kriteria->nama_kriteria]) }}"
+                                class="d-block nav-link {{ request()->is('admin/kriteria/subkriteria/' . $kriteria->nama_kriteria) ? 'fw-bold text-dark' : 'text-dark' }}"
+                                style="font-size: 0.82rem; padding: 3px 6px; line-height: 1.2;">
+                                <i class="bi bi-chevron-right small me-1"></i>{{ $kriteria->nama_kriteria }}
+                            </a>
+                        @endforeach
+                    </div>
                 </div>
-            </div>
-        </li>
+            </li>
 
             <script>
                 document.addEventListener("DOMContentLoaded", function() {
@@ -213,10 +215,10 @@
 
                                 <!-- Profile Link -->
                                 <a class="dropdown-item" href="{{ route('admin.user.show', Auth::user()->id) }}">
-    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-    Profile
-</a>
-<div class="dropdown-divider"></div>
+                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Profile
+                                </a>
+                                <div class="dropdown-divider"></div>
 
 
                                 <!-- Logout Link -->

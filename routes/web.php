@@ -27,16 +27,8 @@ use App\Http\Controllers\Admin\ResetPasswordController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-Route::post('/proses-rekomendasi', [HomeController::class, 'simpankuisionerdanrekomendasi'])->name('proses.rekomendasi');
+Route::post('/proses-rekomendasi', [HomeController::class, 'prosesRekomendasi'])->name('proses.rekomendasi');
 
-
-// // Jika user sudah login, arahkan ke dashboard
-// Route::get('/dashboard', function () {
-//     if (!Auth::check()) {
-//         return redirect()->route('login');
-//     }
-//     return view('admin.pages.dashboard.index');
-// })->name('dashboard');
 
 // Login & Register Routes
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -66,8 +58,8 @@ Route::prefix('admin')->middleware(['auth'])->as('admin.')->group(function () {
     Route::resource('kriteria', KriteriaController::class);
     Route::resource('subkriteria', SubkriteriaController::class);
     Route::get('kriteria/subkriteria/{nama_kriteria}', [SubKriteriaShowController::class, 'indexShow'])->name('kriteria.subkriteria.index');
-
     Route::resource('pakaian', PakaianController::class);
+
     Route::resource('penilaian', PenilaianController::class);
     Route::resource('user', UserController::class);
 });
