@@ -44,7 +44,6 @@ class SubKriteriaController extends Controller
         $validated = $request->validate([
             'kriteria_id' => 'required',
             'nama_sub' => 'required|string|max:255',
-            'nilai' => 'required|integer|min:1|max:5',
             'min_harga' => 'nullable|numeric|min:0',
             'max_harga' => 'nullable|numeric|min:0|gte:min_harga',
         ]);
@@ -53,7 +52,6 @@ class SubKriteriaController extends Controller
         SubKriteria::create([
             'kriteria_id' => $validated['kriteria_id'],
             'nama_sub' => $validated['nama_sub'],
-            'nilai' => $validated['nilai'],
             'min_harga' => $validated['min_harga'] ?? null,
             'max_harga' => $validated['max_harga'] ?? null,
         ]);
@@ -86,7 +84,6 @@ class SubKriteriaController extends Controller
         $request->validate([
             'kriteria_id' => 'required',
             'nama_sub' => 'required|string|max:255',
-            'nilai' => 'required|integer|min:1|max:5',
             'min_harga' => 'nullable|numeric',
             'max_harga' => 'nullable|numeric',
         ]);
@@ -95,7 +92,6 @@ class SubKriteriaController extends Controller
         $subkriteria->update([
             'kriteria_id' => $request->kriteria_id,
             'nama_sub' => $request->nama_sub,
-            'nilai' => $request->nilai,
             'min_harga' => $request->min_harga,
             'max_harga' => $request->max_harga,
         ]);

@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Pakaian;
 use App\Models\Kriteria;
+use App\Models\Subkriteria;
 use Illuminate\Http\Request;
+use App\Models\PenilaianPakaian;
 
 class PenilaianController extends Controller
 {
@@ -13,140 +15,103 @@ class PenilaianController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Pakaian::with('subKriterias.kriteria');
+        $perPage = $request->get('perPage', 10); // Ambil dari query, default ke 10
 
-        // Filter berdasarkan nama_pakaian jika ada pencarian
+        $query = PenilaianPakaian::with(['pakaian', 'subKriteria.kriteria']);
+
         if ($request->has('search') && $request->search != '') {
-            $query->where('nama_pakaian', 'like', '%' . $request->search . '%');
-        }
-
-        // Ambil jumlah per halaman dari parameter 'perPage' atau default ke 10
-        $perPage = $request->get('entries', 10);
-
-        // Ambil data pakaian dengan pagination
-        $pakaians = $query->paginate($perPage);
-
-        // Ambil semua data kriteria
-        $kriterias = Kriteria::all();
-
-        // Return ke view dengan data yang dibutuhkan
-        return view('admin.pages.penilaian.index', compact('pakaians', 'kriterias'));
+        $search = $request->get('search');
+        $query->where(function ($q) use ($search) {
+            // Cari di nama pakaian
+            $q->whereHas('pakaian', function ($q1) use ($search) {
+                $q1->where('nama_pakaian', 'like', "%$search%");
+            })
+            // Cari di nama sub kriteria
+            ->orWhereHas('subKriteria', function ($q2) use ($search) {
+                $q2->where('nama_sub', 'like', "%$search%");
+            })
+            // Cari di nama kriteria
+            ->orWhereHas('subKriteria.kriteria', function ($q3) use ($search) {
+                $q3->where('nama_kriteria', 'like', "%$search%");
+            });
+        });
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+    $penilaians = $query->paginate($perPage)->appends($request->all());
+
+        return view('admin.pages.penilaian.index', compact('penilaians'));
+    }
+
     public function create()
     {
-        //
+        $pakaians = Pakaian::all();
+        $subkriterias = SubKriteria::all();
+        return view('admin.pages.penilaian.form', compact('pakaians', 'subkriterias'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
-    }
+        $request->validate([
+            'pakaian_id' => 'required|exists:pakaians,id',
+            'sub_kriteria_id' => 'required|exists:sub_kriterias,id',
+            'nilai' => 'required|numeric|between:1,5',
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+        // Cek apakah kombinasi sudah ada
+        $cek = PenilaianPakaian::where('pakaian_id', $request->pakaian_id)
+            ->where('sub_kriteria_id', $request->sub_kriteria_id)
+            ->first();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        // Ambil data pakaian dengan relasi subKriterias beserta kriteria-nya
-        $pakaian = Pakaian::with('subKriterias.kriteria')->findOrFail($id);
-
-        // Ambil semua kriteria, supaya bisa ditampilkan di form edit untuk memilih/mengubah subkriteria
-        $kriterias = Kriteria::with('subKriteria')->get();
-
-        // Ambil ID kriteria yang multiple select
-        $multiSelectKriteriaIds = Kriteria::whereIn('nama_kriteria', ['Jenis Acara', 'Lokasi Acara', 'Cuaca'])->pluck('id')->toArray();
-
-        // Kirim juga nilai penilaian yang sudah disimpan
-        $nilai = [];
-        foreach ($pakaian->subKriterias as $sub) {
-            $kriteriaId = $sub->kriteria->id;
-            // Untuk multiple, buat array; untuk single, overwrite
-            if (in_array($kriteriaId, $multiSelectKriteriaIds)) {
-                $nilai[$kriteriaId][] = $sub->id;
-            } else {
-                $nilai[$kriteriaId] = $sub->id;
-            }
+        if ($cek) {
+            return redirect()->back()
+                ->withErrors(['Data penilaian untuk kombinasi ini sudah ada.'])
+                ->withInput();
         }
 
-        return view('admin.pages.penilaian.edit', compact(
-            'pakaian',
-            'kriterias',
-            'multiSelectKriteriaIds',
-            'nilai'
-        ));
+        PenilaianPakaian::create($request->all());
+        $page = $request->input('page', 1); // default page 1 jika tidak ada
+        return redirect()->route('admin.penilaian.index', ['page' => $page])
+            ->with('success', 'Data penilaian berhasil ditambahkan.');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id)
+    public function edit(PenilaianPakaian $penilaian)
     {
-        $pakaian = Pakaian::findOrFail($id);
+        $pakaians = Pakaian::all();
+        $subkriterias = SubKriteria::all();
+        return view('admin.pages.penilaian.form', compact('penilaian', 'pakaians', 'subkriterias'));
+    }
 
-        // Ambil list kriteria yang multiple select (jenis acara, lokasi, cuaca)
-        $multiSelectKriteria = Kriteria::whereIn('nama_kriteria', ['Jenis Acara', 'Lokasi', 'Cuaca'])->pluck('id')->toArray();
+    public function update(Request $request, PenilaianPakaian $penilaian)
+    {
+        $request->validate([
+            'pakaian_id' => 'required|exists:pakaians,id',
+            'sub_kriteria_id' => 'required|exists:sub_kriterias,id',
+            'nilai' => 'required|numeric|between:1,5',
+        ]);
 
-        $rules = [];
-        $messages = [];
+        // Cek jika ada duplikat kombinasi (tapi bukan dirinya sendiri)
+        $cek = PenilaianPakaian::where('pakaian_id', $request->pakaian_id)
+            ->where('sub_kriteria_id', $request->sub_kriteria_id)
+            ->where('id', '!=', $penilaian->id)
+            ->first();
 
-        $allKriteria = Kriteria::all()->keyBy('id');
-
-        foreach ($request->input('nilai') as $kriteriaId => $value) {
-            if (!isset($allKriteria[$kriteriaId])) continue;
-
-            $nama = $allKriteria[$kriteriaId]->nama_kriteria;
-
-            if (in_array($kriteriaId, $multiSelectKriteria)) {
-                $rules["nilai.$kriteriaId"] = 'required|array|min:1';
-                $messages["nilai.$kriteriaId.required"] = "Pilih minimal satu subkriteria untuk $nama.";
-                $messages["nilai.$kriteriaId.min"] = "Pilih minimal satu subkriteria untuk $nama.";
-            } else {
-                $rules["nilai.$kriteriaId"] = 'required';
-                $messages["nilai.$kriteriaId.required"] = "Pilih satu subkriteria untuk $nama.";
-            }
+        if ($cek) {
+            return redirect()->back()
+                ->withErrors(['Kombinasi ini sudah digunakan pada data lain.'])
+                ->withInput();
         }
 
-        $validated = $request->validate($rules, $messages);
-
-        // Flatten semua subkriteria dari array nilai (baik single select maupun multi)
-        $subKriteriaIds = [];
-
-        foreach ($validated['nilai'] as $kriteriaId => $sub) {
-            if (is_array($sub)) {
-                $subKriteriaIds = array_merge($subKriteriaIds, $sub);
-            } else {
-                $subKriteriaIds[] = $sub;
-            }
-        }
-
-        $subKriteriaIds = array_unique($subKriteriaIds);
-
-        // Sync relasi many-to-many
-        $pakaian->subKriterias()->sync($subKriteriaIds);
-
-        return redirect()->route('admin.penilaian.index')->with('success', 'Penilaian berhasil diperbarui.');
+        $penilaian->update($request->all());
+        $page = $request->input('page', 1);
+        return redirect()->route('admin.penilaian.index', ['page' => $page])
+            ->with('success', 'Data penilaian berhasil diperbarui.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(PenilaianPakaian $penilaian)
     {
-        //
-    }
+        $penilaian->delete();
+        $page = request()->input('page', 1);
+        return redirect()->route('admin.penilaian.index', ['page' => $page])
+            ->with('success', 'Data berhasil dihapus.');
+            }
 }

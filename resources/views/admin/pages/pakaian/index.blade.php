@@ -115,6 +115,7 @@
                         <th scope="col">Gambar</th>
                         <th scope="col">Nama Pakaian</th>
                         <th scope="col">Harga</th>
+                        <th scope="col">Deskripsi</th>
                         <th scope="col">Aksi</th>
                     </tr>
                 </thead>
@@ -124,7 +125,7 @@
                             <td>{{ $loop->iteration }}</td>
                             <td>
                                 @if ($item->img)
-                                    <img src="{{ asset('storage/' . $item->img) }}" alt="Gambar"
+                                    <img src="{{ asset($item->img) }}" alt="Gambar"
                                         style="width: 100px; height: 100px;">
                                 @else
                                     <span class="text-muted">Tidak ada gambar</span>
@@ -132,11 +133,13 @@
                             </td>
                             <td>{{ $item->nama_pakaian }}</td>
                             <td>Rp{{ number_format($item->harga, 0, ',', '.') }}</td>
+                            <td>{{ $item->deskripsi ?? '-' }}</td>
                             <td>
-                                <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal"
-                                    data-bs-target="#infoModal{{ $item->id }}">
+                                <!-- Tombol Info -->
+                                <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#infoModal{{ $item->id }}">
                                     <i class="bi bi-info-circle"></i>
                                 </button>
+
                                 <a href="{{ route('admin.pakaian.edit', $item->id) }}" class="btn btn-warning btn-sm">
                                     <i class="bi bi-pencil-square"></i>
                                 </a>
@@ -178,7 +181,6 @@
                                     <tr>
                                         <th>Kriteria</th>
                                         <th>Subkriteria</th>
-                                        <th>Nilai</th>
                                         <th>Range Harga</th>
                                     </tr>
                                 </thead>
@@ -187,7 +189,6 @@
                                         <tr>
                                             <td>{{ $sub->kriteria->nama_kriteria ?? '-' }}</td>
                                             <td>{{ $sub->nama_sub }}</td>
-                                            <td>{{ $sub->nilai }}</td>
                                             <td>
                                                 @if ($sub->kriteria->nama_kriteria === 'Harga')
                                                     Rp{{ number_format($sub->min_harga, 0, ',', '.') }}
@@ -214,69 +215,6 @@
         <div class="d-flex justify-content-end">
             {{ $alternatif->appends(request()->query())->links('vendor.pagination.bootstrap-5') }}
         </div>
-
-
-
-        @foreach ($alternatif as $item)
-            <!-- Modal Edit -->
-            <div class="modal fade" id="modalEdit{{ $item->id }}" tabindex="-1"
-                aria-labelledby="modalEdit{{ $item->id }}" aria-hidden="true">
-                <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="modalEdit{{ $item->id }}">Edit Data Pakaian</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                aria-label="Close"></button>
-                        </div>
-
-                        <form method="POST" action="{{ route('admin.pakaian.update', $item->id) }}"
-                            enctype="multipart/form-data">
-                            @csrf
-                            @method('PUT')
-
-                            <div class="modal-body">
-                                <!-- Nama Pakaian -->
-                                <div class="mb-3">
-                                    <label for="edit_nama_pakaian{{ $item->id }}" class="form-label">Nama
-                                        Pakaian</label>
-                                    <input type="text" class="form-control" id="edit_nama_pakaian{{ $item->id }}"
-                                        name="nama_pakaian" value="{{ $item->nama_pakaian }}" required>
-                                </div>
-                                <!-- Harga -->
-                                <div class="mb-3">
-                                    <label for="edit_harga{{ $item->id }}" class="form-label">Harga</label>
-                                    <input type="number" id="edit_harga{{ $item->id }}" name="harga"
-                                        class="form-control" value="{{ $item->harga }}" required>
-                                </div>
-
-                                <!-- Upload Gambar Baru -->
-                                <div class="mb-3">
-                                    <label for="edit_gambar{{ $item->id }}" class="form-label">Gambar Baru</label>
-                                    <input type="file" class="form-control" name="gambar"
-                                        id="edit_gambar{{ $item->id }}" accept="image/*">
-                                </div>
-
-                                <!-- Preview Gambar Lama -->
-                                <div class="mb-3">
-                                    <label class="form-label">Gambar Lama:</label><br>
-                                    <img src="{{ asset('storage/' . $item->img) }}" alt="Gambar Lama"
-                                        style="width: 100px; height: 100px; object-fit: cover;" class="border rounded">
-
-                                </div>
-                            </div>
-
-                            <div class="modal-footer">
-                                <button type="button" class="btn" style="background-color: #90ee90; color: black;"
-                                    data-bs-dismiss="modal">Batal</button>
-                                <button type="submit" class="btn"
-                                    style="background-color: #064E3B; color: white;">Simpan</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        @endforeach
-
 
         <style>
             .label-spacing {

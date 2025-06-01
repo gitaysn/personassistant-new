@@ -6,8 +6,7 @@
                 <div class="col-lg-8">
                     <div class="text-center mb-4">
                         <h5 class="fw-bold fs-3 fs-lg-5 lh-sm">Pilih Pakaian Anda</h5>
-                        <p class="text-muted">Untuk mendapatkan rekomendasi pakaian yang sesuai dengan preferensi Anda.
-                        </p>
+                        <p class="text-muted">Untuk mendapatkan rekomendasi pakaian yang sesuai dengan preferensi Anda.</p>
                     </div>
 
                     <div class="card shadow-lg border-0 rounded-4">
@@ -15,8 +14,7 @@
 
                             <!-- Progress Bar -->
                             <div class="progress mb-4">
-                                <div class="progress-bar bg-primary" role="progressbar" style="width: 20%;"
-                                    id="progressBar"></div>
+                                <div class="progress-bar bg-primary" role="progressbar" style="width: 20%;" id="progressBar"></div>
                             </div>
 
                             @php
@@ -25,36 +23,40 @@
                                     'Harga' => $subKriteria['Harga'] ?? [],
                                     'Jenis Acara' => $subKriteria['Jenis Acara'] ?? [],
                                     'Warna Pakaian' => $subKriteria['Warna Pakaian'] ?? [],
-                                    'Cuaca Acara' => $subKriteria['Cuaca Acara'] ?? [],
                                     'Lokasi Acara' => $subKriteria['Lokasi Acara'] ?? [],
                                 ];
+
+                                $multiAnswerKriteria = ['Jenis Acara', 'Warna Pakaian', 'Lokasi Acara'];
                                 $stepIndex = 1;
                             @endphp
 
                             @foreach ($steps as $label => $subs)
                                 <div class="step {{ $stepIndex === 1 ? 'active' : '' }}" id="step-{{ $stepIndex }}">
-                                    <h5 class="fw-bold mb-3">Pilih {{ strtolower($label) }}...</h5>
+                                    <h5 class="fw-bold mb-3">Pilih {{ strtolower($label) }}:</h5>
+
                                     @foreach ($subs as $sub)
                                         <div class="form-check mb-2">
-                                            <input class="form-check-input" type="radio" id="sub_{{ $sub->id }}"
-                                                value="{{ $sub->id }}"
-                                                name="sub_kriteria[{{ $sub->kriteria_id }}]">
+                                            @php
+                                                $isMultiple = in_array($label, $multiAnswerKriteria);
+                                                $inputType = $isMultiple ? 'checkbox' : 'radio';
+                                                $nameAttr = $isMultiple ? "sub_kriteria[{$sub->kriteria_id}][]" : "sub_kriteria[{$sub->kriteria_id}]";
+                                            @endphp
+                                            <input class="form-check-input" type="{{ $inputType }}" id="sub_{{ $sub->id }}"
+                                                name="{{ $nameAttr }}" value="{{ $sub->id }}">
                                             <label class="form-check-label" for="sub_{{ $sub->id }}">
                                                 {{ $sub->nama_sub }}
                                             </label>
                                         </div>
                                     @endforeach
 
-                                    <div class="mt-3">
+                                    <div class="mt-4">
                                         @if ($stepIndex > 1)
-                                            <button type="button" class="btn btn-secondary me-2"
-                                                onclick="prevStep()">Kembali</button>
+                                            <button type="button" class="btn btn-secondary me-2" onclick="prevStep()">Kembali</button>
                                         @endif
                                         @if ($stepIndex < count($steps))
-                                            <button type="button" class="btn btn-primary"
-                                                onclick="nextStep()">Selanjutnya</button>
+                                            <button type="button" class="btn btn-primary" onclick="nextStep()">Selanjutnya</button>
                                         @else
-                                            <button type="submit">Lihat Rekomendasi</button>
+                                            <button type="submit" class="btn btn-success">Lihat Rekomendasi</button>
                                         @endif
                                     </div>
                                 </div>
@@ -82,11 +84,11 @@
         }
 
         function nextStep() {
-            const radios = document.querySelectorAll(`#step-${currentStep} input[type="radio"]`);
-            const isAnswered = Array.from(radios).some(radio => radio.checked);
+            const currentInputs = document.querySelectorAll(`#step-${currentStep} input`);
+            const isAnswered = Array.from(currentInputs).some(input => input.checked);
 
             if (!isAnswered) {
-                alert("Silakan pilih salah satu opsi terlebih dahulu.");
+                alert("Silakan pilih minimal satu opsi terlebih dahulu.");
                 return;
             }
 

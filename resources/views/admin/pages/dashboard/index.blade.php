@@ -3,57 +3,33 @@
 @section('content')
 
 <style>
-        #content-wrapper {
-        min-height: 100vh; /* Supaya kontennya minimal setinggi layar */
+    #content-wrapper {
+        min-height: 100vh;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
     }
 
     #content {
-        flex: 1; /* Supaya konten utama mengambil semua ruang kosong */
+        flex: 1;
     }
 
     .sticky-footer {
-    width: calc(100% - 225px); /* Sesuaikan 250px dengan lebar sidebar */
-    position: fixed;
-    bottom: 0;
-    left: 225px; /* Mulai dari sebelah kanan sidebar */
-    background-color: white;
-    padding: 10px 0;
-    text-align: center;
-}
-
-    .card-link-text {
-        transition: text-decoration 0.2s ease;
+        width: calc(100% - 225px);
+        position: fixed;
+        bottom: 0;
+        left: 225px;
+        background-color: white;
+        padding: 10px 0;
+        text-align: center;
     }
-
-    a:hover .card-link-text {
-        text-decoration: underline;
-    }
-
-    a.card-link {
-        text-decoration: none;
-        color: inherit; /* supaya warna teks tetap sama */
-        display: block; /* supaya link memenuhi seluruh card */
-    }
-
-    a.card-link:hover span {
-        text-decoration: underline;
-        cursor: pointer;
-    }
-
-    a.text-decoration-none:hover .underline-on-hover {
-        text-decoration: underline;
-    }
-
 </style>
 
 <h1 class="h3 text-gray-800">
     <i class="bi bi-house-door-fill"></i> Dashboard
 </h1>
 
-<!-- Notification Pop-up -->
+<!-- Notification -->
 <div class="alert alert-success alert-dismissible fade show" role="alert" style="font-size: 14px; display: flex; align-items: center; justify-content: space-between; background-color: #d4edda; border: 1px solid #c3e6cb; padding: 10px; border-radius: 5px;">
     <span><strong>Selamat datang ADMIN!</strong> Anda bisa mengoperasikan sistem dengan wewenang tertentu melalui pilihan menu di bawah.</span>
     <button type="button" class="close" data-dismiss="alert" aria-label="Close" style="margin-left: 10px;">
@@ -61,110 +37,69 @@
     </button>
 </div>
 
- <!-- Content Row -->
- <div class="row">
-
-        <!-- Data Kriteria -->
-        <div class="col-xl-4 col-md-6 mb-4">
-            <a href="#">
-                <div class="card border-left-primary shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="h5 mb-0 font-weight-bold text-gray-800">
-                                Data Kriteria: {{ $totalKriteria }}
-                            </span>
-                            <i class="bi bi-box text-gray-400" style="font-size: 1.5rem;"></i>
-                        </div>
-                    </div>
-                </div>
-            </a>
+<div class="row mt-4">
+    <!-- Tentang Sistem -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm h-100 p-4">
+            <h5 class="mb-3" style="color: #155724; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-weight: 600;">
+                Informasi Sistem Pendukung Keputusan Pemilihan Pakaian
+            </h5>
+            <p class="text-gray-700 mb-0">
+                Sistem ini menggunakan metode <strong>Simple Additive Weighting (SAW)</strong> untuk memberikan rekomendasi pakaian berdasarkan preferensi pengguna.
+                Setiap pakaian dinilai berdasarkan kecocokan terhadap subkriteria dari 5 kriteria utama, dengan bobot yang telah ditentukan.
+                Semakin tinggi skor akhir, semakin cocok pakaian tersebut untuk kebutuhan pengguna.
+            </p>
         </div>
-
-        <!-- Data Sub Kriteria -->
-        <div class="col-xl-4 col-md-6 mb-4">
-            <a href="#">
-                <div class="card border-left-info shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="h5 mb-0 font-weight-bold text-gray-800">
-                                Data Sub Kriteria: {{ $totalSubKriteria }}
-                            </span>
-                            <i class="bi bi-boxes text-gray-400" style="font-size: 1.5rem;"></i>
-                        </div>
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <!-- Data Alternatif -->
-        <div class="col-xl-4 col-md-6 mb-4">
-            <a href="#" class="text-decoration-none">
-                <div class="card border-left-success shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="h5 mb-0 font-weight-bold text-gray-800 underline-on-hover">
-                                Data Alternatif: {{ $totalPakaian }}
-                            </span>
-                            <i class="bi bi-person-lines-fill text-gray-400" style="font-size: 1.5rem;"></i>
-                        </div>
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <!-- Card Area Chart -->
-        <div class="col-xl-12 mb-4">
-            <div class="card shadow h-100">
-                <div class="card-header d-flex align-items-center py-2">
-                    <h6 class="m-0 font-weight-bold text-dark">Statistik Pengunjung</h6>
-                </div>
-                <div class="card-body">
-                    <div class="chart-area">
-                        <canvas id="myAreaChart"></canvas>
-                    </div>
-                    <hr>
-                    
-                </div>
-            </div>
-        </div>
-
-        {{-- <!-- Data Penilaian -->
-        <div class="col-xl-4 col-md-6 mb-4">
-            <a href="{{ route('admin.penilaian.index') }}" style="text-decoration: none;">
-                <div class="card border-left-secondary shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="h5 mb-0 font-weight-bold text-gray-800 card-link-text">Penilaian Alternatif</span>
-                            <i class="bi bi-list-ul text-gray-400" style="font-size: 1.5rem;"></i>
-                        </div>
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <!-- Data Perhitungan -->
-        <div class="col-xl-4 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="h5 mb-0 font-weight-bold text-gray-800">Perhitungan</span>
-                        <i class="bi bi-calculator-fill text-gray-400" style="font-size: 1.5rem;"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Data Hasil Akhir -->
-        <div class="col-xl-4 col-md-6 mb-4">
-            <div class="card border-left-danger shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="h5 mb-0 font-weight-bold text-gray-800">Hasil Akhir</span>
-                        <i class="bi bi-graph-up text-gray-400" style="font-size: 1.5rem;"></i>
-                    </div>
-                </div>
-            </div>
-        </div> --}}
     </div>
 
+    <!-- Grafik -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm h-100 p-4">
+            <h5 class="mb-3" style="color: #155724; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-weight: 600;">
+                Statistik Jumlah Data
+            </h5>
+            <canvas id="dashboardChart" height="170"></canvas>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('dashboardChart').getContext('2d');
+    const dashboardChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Kriteria', 'Sub Kriteria', 'Pakaian'],
+            datasets: [{
+                label: 'Jumlah Data',
+                data: [{{ $totalKriteria }}, {{ $totalSubKriteria }}, {{ $totalPakaian }}],
+                backgroundColor: [
+                    'rgba(78, 115, 223, 0.7)',
+                    'rgba(54, 185, 204, 0.7)',
+                    'rgba(28, 200, 138, 0.7)'
+                ],
+                borderColor: [
+                    'rgba(78, 115, 223, 1)',
+                    'rgba(54, 185, 204, 1)',
+                    'rgba(28, 200, 138, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+</script>
 @endsection

@@ -20,6 +20,19 @@ class DashboardController extends Controller
         $totalKriteria = Kriteria::count();
         $totalSubKriteria = Subkriteria::count();
 
-        return view("admin.pages.dashboard.index", compact("totalPakaian", "totalKriteria", "totalSubKriteria"));
+        // Dapatkan jumlah penilaian berdasarkan kriteria
+        $dataPenilaianPerKriteria = Kriteria::with('subKriteria.penilaians')->get()->map(function ($kriteria) {
+            return [
+                'label' => $kriteria->nama_kriteria, // sesuaikan jika nama kolomnya ini
+                'jumlah' => $kriteria->subKriteria->sum(fn($sub) => $sub->penilaians->count())
+            ];
+        });
+
+        return view('admin.pages.dashboard.index', compact(
+            'totalKriteria', 
+            'totalSubKriteria', 
+            'totalPakaian', 
+            'dataPenilaianPerKriteria'
+        ));
     }
 }

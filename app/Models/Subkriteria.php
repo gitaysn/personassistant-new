@@ -13,7 +13,7 @@ class SubKriteria extends Model
 
     protected $table = 'sub_kriterias';
 
-    protected $fillable = ['kriteria_id', 'nama_sub', 'nilai', 'min_harga', 'max_harga'];
+    protected $fillable = ['kriteria_id', 'nama_sub', 'min_harga', 'max_harga'];
 
     public function kriteria(): BelongsTo
     {
@@ -23,5 +23,10 @@ class SubKriteria extends Model
     public function pakaian(): BelongsToMany
     {
         return $this->belongsToMany(Pakaian::class, 'pakaian_sub_kriteria');
+    }
+
+    public function penilaians()
+    {
+        return $this->hasMany(PenilaianPakaian::class, 'sub_kriteria_id');
     }
 }

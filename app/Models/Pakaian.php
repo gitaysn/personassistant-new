@@ -12,10 +12,15 @@ class Pakaian extends Model
 
     protected $table = 'pakaians';
 
-    protected $fillable = ['nama_pakaian', 'img', 'harga'];
+    protected $fillable = ['nama_pakaian', 'img', 'harga', 'deskripsi'];
 
     public function subKriterias(): BelongsToMany
     {
         return $this->belongsToMany(SubKriteria::class, 'pakaian_sub_kriterias');
+    }
+
+        public function penilaian()
+    {
+        return $this->hasMany(PenilaianPakaian::class);
     }
 }

@@ -1,197 +1,188 @@
 @extends('admin.layouts.base')
 
-@section('title', 'Penilaian Pakaian')
+@section('title', 'Data Penilaian Pakaian')
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 text-grey-800">
-        <i class="bi bi-box"></i> Penilaian Pakaian
-    </h1> 
-</div>
+    <style>
+        .btn-hijau {
+            background-color: #064E3B;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
 
-<style>
-    .pagination {
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-        padding: 10px;
-    }
+        .btn-hijau:hover {
+            background-color: #053B2D;
+        }
 
-    .pagination .page-item .page-link {
-        font-size: 14px;
-        padding: 6px 12px;
-        border-radius: 5px;
-        border: none;
-        color: white;
-        background-color: #064E3B;
-        margin: 0 2px;
-        transition: 0.3s ease-in-out;
-    }
+        .modern-select {
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: border 0.2s ease-in-out;
+        }
 
-    .pagination .page-item.active .page-link {
-        background-color: #053B2D;
-        font-weight: bold;
-    }
+        .modern-select:focus {
+            border-color: #0d6efd;
+            outline: none;
+        }
 
-    .pagination .page-item .page-link:hover {
-        background-color: #046C4E;
-    }
+        .pagination {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 10px;
+        }
 
-    .pagination .page-item.disabled .page-link {
-        background-color: #e9ecef;
-        color: #6c757d;
-        cursor: not-allowed;
-    }
+        .pagination .page-item .page-link {
+            font-size: 14px;
+            padding: 6px 12px;
+            border-radius: 5px;
+            border: none;
+            color: white;
+            background-color: #064E3B;
+            margin: 0 2px;
+            transition: 0.3s ease-in-out;
+        }
 
-    .form-select-sm,
-    .form-control-sm {
-        width: auto;
-    }
+        .pagination .page-item.active .page-link {
+            background-color: #053B2D;
+            font-weight: bold;
+        }
 
-    .search-input {
-        width: 200px;
-    }
+        .pagination .page-item .page-link:hover {
+            background-color: #046C4E;
+        }
 
-    .btn-biru {
-        background-color: #007bff;
-        color: white;
-        border: none;
-        padding: 6px 16px;
-        border-radius: 4px;
-        cursor: pointer;
-    }
+        .pagination .page-item.disabled .page-link {
+            background-color: #e9ecef;
+            color: #6c757d;
+            cursor: not-allowed;
+        }
+    </style>
 
-    .btn-biru:hover {
-        background-color: #0069d9;
-    }
+    @if (session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
 
-    .search-box {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-    }
-
-    .modern-select {
-        padding: 6px 12px;
-        border-radius: 8px;
-        border: 1px solid #ccc;
-        font-size: 14px;
-        background-color: #fff;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        transition: border 0.2s ease-in-out;
-    }
-
-    .modern-select:focus {
-        border-color: #0d6efd;
-        outline: none;
-    }
-</style>
-
-<div class="card shadow mb-4">
-    <div class="card-header py-3 d-flex justify-content-between align-items-center">
-        <h6 class="m-0 font-weight-bold" style="color: #064E3B;">
-            <i class="bi bi-table"></i> Daftar Penilaian Pakaian
-        </h6>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 text-grey-800">
+            <i class="bi bi-clipboard-data"></i> Data Penilaian Pakaian
+        </h1>
+        <a href="{{ route('admin.penilaian.create') }}" class="btn btn-hijau">
+            <i class="bi bi-plus-circle"></i> Tambah Data
+        </a>
     </div>
 
+    <div class="card shadow mb-4">
     <div class="card-body">
-        {{-- GABUNGKAN FORM --}}
-        <form method="GET" action="{{ route('admin.penilaian.index') }}" class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
-            <div class="d-flex align-items-center gap-2 mb-2 mb-md-0">
-                <label for="entriesPerPage" class="mb-0 text-muted fw-semibold" style="margin-right: 12px;">Show</label>
-                <select name="entries" id="entriesPerPage" class="modern-select" onchange="this.form.submit()">
-                    <option value="10" {{ request('entries') == 10 ? 'selected' : '' }}>10</option>
-                    <option value="25" {{ request('entries') == 25 ? 'selected' : '' }}>25</option>
-                    <option value="50" {{ request('entries') == 50 ? 'selected' : '' }}>50</option>
-                </select>
-                <span class="text-muted fw-semibold" style="margin-left: 12px;">entries</span>
-            </div>
+        <form method="GET" class="d-flex justify-content-start align-items-center mb-3">
+            <label for="perPage" class="me-3 mt-1">Tampilkan</label>
 
-            <div class="search-box">
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama pakaian..." class="form-control form-control-sm search-input">
-                <button type="submit" class="btn btn-sm" style="background-color: #14532d; color: white;">Cari</button>
-            </div>
+            <select name="perPage" id="perPage" class="modern-select mx-2" onchange="this.form.submit()">
+                @foreach([10, 50, 100, 500, 1000] as $size)
+                    <option value="{{ $size }}" {{ request('perPage', 10) == $size ? 'selected' : '' }}>
+                        {{ $size }}
+                    </option>
+                @endforeach
+            </select>
+
+            <label class="ms-2 mt-1">entri</label>
         </form>
 
-        <div class="table-responsive">
-            <table class="table table-bordered" width="100%" cellspacing="0">
-                <thead>
-                    <tr>
-                        <th class="text-center">No</th>
-                        <th class="text-center">Nama Pakaian</th>
-                        {{-- Header Kriteria --}}
-                        @foreach ($kriterias as $kriteria)
-                            <th class="text-center">{{ $kriteria->nama_kriteria }}</th>
-                        @endforeach
-                        <th class="text-center">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($pakaians as $item)
-                    <tr>
-                        <td class="text-center">{{ $loop->iteration }}</td>
-                        <td class="text-center">{{ $item->nama_pakaian ?? '-' }}</td>
+            <form method="GET" class="d-flex justify-content-end mb-3">
+                {{-- Pertahankan nilai perPage --}}
+                <input type="hidden" name="perPage" value="{{ request('perPage', 10) }}">
 
-                        {{-- Subkriteria --}}
-                        @foreach ($kriterias as $kriteria)
-                            @php
-                                $subKriterias = $item->subKriterias->where('kriteria_id', $kriteria->id);
-                                $namaSubs = $subKriterias->pluck('nama_sub')->toArray();
-                            @endphp
-                            <td class="text-center">
-                                @if (count($namaSubs))
-                                    @if (in_array($kriteria->nama_kriteria, ['Jenis Acara', 'Lokasi Acara', 'Cuaca Acara']))
-                                        <div class="d-flex flex-wrap justify-content-center gap-2">
-                                            @foreach ($namaSubs as $nama)
-                                                <span class="rounded-pill px-3 py-1 bg-light border text-dark small shadow-sm">
-                                                    {{ $nama }}
-                                                </span>
-                                            @endforeach
-                                        </div>
-                                    @else
-                                        {{ $namaSubs[0] ?? '-' }}
-                                    @endif
-                                @else
-                                    <span class="text-muted">-</span>
-                                @endif
-                            </td>
-                        @endforeach
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari pakaian..."
+                    class="form-control form-control-sm" style="width: 200px; margin-right: 8px;">
+                <button type="submit" class="btn btn-success btn-sm" style="background-color: #14532d; border: none;">
+                    Cari
+                </button>
+            </form>
 
-                        <td class="text-center">
-                            <a href="{{ route('admin.penilaian.edit', $item->id) }}" class="btn btn-warning btn-sm">
-                                <i class="bi bi-pencil"></i> 
-                            </a>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="{{ 3 + $kriterias->count() }}" class="text-center">Belum ada data penilaian.</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped align-middle text-center">
+                    <thead class="table-light">
+                        <tr>
+                            <th>No</th>
+                            <th>Pakaian</th>
+                            <th>Kriteria</th>
+                            <th>Sub Kriteria</th>
+                            <th>Nilai</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($penilaians as $index => $penilaian)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $penilaian->pakaian->nama_pakaian ?? '-' }}</td>
+                                <td>{{ $penilaian->subKriteria->kriteria->nama_kriteria ?? '-' }}</td>
+                                <td>{{ $penilaian->subKriteria->nama_sub ?? '-' }}</td>
+                                <td>{{ $penilaian->nilai ?? '-' }}</td>
+                                <td>
+                                    <a href="{{ route('admin.penilaian.edit', ['penilaian' => $penilaian->id, 'page' => request('page')]) }}"
+                                        class="btn btn-warning btn-sm">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <form id="delete-form-{{ $penilaian->id }}" action="{{ route('admin.penilaian.destroy', $penilaian->id) }}" method="POST" style="display: inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="button" class="btn btn-danger btn-sm delete-button" data-id="{{ $penilaian->id }}">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-muted">Tidak ada data penilaian tersedia.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
 
-        <div class="mt-3">
-            {{-- BAWA PARAMETER PAGINATION --}}
-            {{ $pakaians->appends(['entries' => request('entries'), 'search' => request('search')])->links('pagination::bootstrap-4') }}
+            <div class="d-flex justify-content-end">
+                {{ $penilaians->appends(request()->query())->links('vendor.pagination.bootstrap-5') }}
+            </div>
         </div>
     </div>
-</div>
 
-<!-- SweetAlert CDN -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const deleteButtons = document.querySelectorAll('.delete-button');
 
-@if (session('success'))
-<script>
-    Swal.fire({
-        title: 'Berhasil!',
-        text: '{{ session('success') }}',
-        icon: 'success',
-        timer: 3000,
-        showConfirmButton: false
-    });
-</script>
-@endif
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const id = this.getAttribute('data-id');
+
+                    Swal.fire({
+                        title: 'Yakin ingin menghapus data ini?',
+                        text: "Data yang dihapus tidak bisa dikembalikan!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Ya, hapus!',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            document.getElementById(`delete-form-${id}`).submit();
+                        }
+                    });
+                });
+            });
+        });
+    </script>
 
 @endsection
+
+

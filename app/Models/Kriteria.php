@@ -17,4 +17,5 @@ class Kriteria extends Model
     {
         return $this->hasMany(SubKriteria::class);
     }
+
 }

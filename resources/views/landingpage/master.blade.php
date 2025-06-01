@@ -154,6 +154,10 @@
             <div class="col-md-7 col-lg-6 col-xxl-5 py-6 text-sm-start text-center">
               <h1 class="mt-6 mb-sm-4 fw-semi-bold lh-sm fs-4 fs-lg-5 fs-xl-6">Hello! <br class="d-block d-lg-block" />Selamat Datang</h1>
               <p class="mb-4 fs-1">Terima kasih telah mengunjungi situs kami! Kami siap membantu anda mencari pakaian yang sesuai dengan gaya dan kebutuhan anda!</p>
+
+              <a href="#pilihpakaian" class="btn btn-primary px-4 py-2">
+                Mulai Cari Pakaian
+              </a>
             </div>
           </div>
         </div>

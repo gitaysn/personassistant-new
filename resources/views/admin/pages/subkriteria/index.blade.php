@@ -31,7 +31,6 @@
                         <tr>
                             <th class="text-center">No</th>
                             <th class="text-center">Nama Subkriteria</th>
-                            <th class="text-center">Nilai</th>
                             <th class="text-center">Min Harga</th>
                             <th class="text-center">Max Harga</th>
                             <th class="text-center">Aksi</th>
@@ -42,7 +41,6 @@
                             <tr>
                                 <td class="text-center">{{ $key + 1 }}</td>
                                 <td class="text-center">{{ $sub->nama_sub }}</td>
-                                <td class="text-center">{{ $sub->nilai }}</td>
                                 <td class="text-center">{{ $sub->min_harga ?? '-' }}</td>
                                 <td class="text-center">{{ $sub->max_harga ?? '-' }}</td>
                                 <td class="text-center">
@@ -104,11 +102,6 @@
                             <input type="text" class="form-control" id="nama_sub" name="nama_sub" required>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="nilai" class="form-label">Nilai</label>
-                            <input type="number" class="form-control" id="nilai" name="nilai" step="1" required>
-                        </div>
-
                         <div id="harga-fields" style="display: none;">
                             <div class="mb-3">
                                 <label for="min_harga" class="form-label">Min Harga</label>
@@ -165,11 +158,6 @@
                             <div class="mb-3">
                                 <label for="nama_sub" class="form-label">Nama Subkriteria</label>
                                 <input type="text" class="form-control" name="nama_sub" value="{{ $sub->nama_sub }}" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="nilai" class="form-label">Nilai</label>
-                                <input type="number" class="form-control" name="nilai" value="{{ $sub->nilai }}" required>
                             </div>
 
                             <div class="harga-fields" id="hargaFields{{ $sub->id }}" style="display: none;">

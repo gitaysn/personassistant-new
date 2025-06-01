@@ -161,14 +161,6 @@
                     <span>Penilaian</span></a>
             </li>
 
-            <!-- Nav Item - Hasil Akhir -->
-            <li class="nav-item {{ request()->is('admin/riwayat') ? 'active' : '' }}">
-                <a class="nav-link" href="#">
-                    <i class="bi bi-hourglass-split"></i>
-                    <span>Riwayat User</span>
-                </a>
-            </li>
-
             <!-- Divider -->
             <hr class="sidebar-divider">
 
