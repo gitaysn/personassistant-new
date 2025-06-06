@@ -22,7 +22,7 @@ class SubKriteria extends Model
 
     public function pakaian(): BelongsToMany
     {
-        return $this->belongsToMany(Pakaian::class, 'pakaian_sub_kriteria');
+        return $this->belongsToMany(Pakaian::class, 'pakaian_sub_kriteria',);
     }
 
     public function penilaians()

@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Landingpage;
 use App\Models\Pakaian;
 use App\Models\Kriteria;
 use App\Models\QuizHistory;
-use App\Models\Subkriteria;
+use App\Models\SubKriteria;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Models\DataAlternatif;
@@ -32,7 +32,7 @@ class HomeController extends Controller
     {
         // Input validation and processing
         $userInput = $this->processUserInput($request->input('sub_kriteria', []));
-        
+
         if (empty($userInput)) {
             return $this->returnNoResults('Silakan pilih minimal satu kriteria.');
         }
@@ -46,10 +46,10 @@ class HomeController extends Controller
 
         // Extract criteria inputs
         $criteriaInputs = $this->extractCriteriaInputs($userInput, $selectedSubkriteria);
-        
+
         // Apply strict filtering
         $filteredClothing = $this->applyStrictFiltering($criteriaInputs);
-        
+
         if ($filteredClothing->isEmpty()) {
             return $this->returnNoResults('Tidak ada pakaian yang sesuai dengan kriteria yang Anda pilih.');
         }
@@ -66,20 +66,20 @@ class HomeController extends Controller
     private function processUserInput(array $userInput): array
     {
         $processedInput = [];
-        
+
         foreach ($userInput as $kriteria_id => $subkriteria) {
             $subkriteriaArray = (array) $subkriteria;
-            
+
             // Remove empty values and validate
             $cleanedSubkriteria = array_filter($subkriteriaArray, function($value) {
                 return !empty($value) && is_numeric($value);
             });
-            
+
             if (!empty($cleanedSubkriteria)) {
                 $processedInput[$kriteria_id] = array_map('intval', $cleanedSubkriteria);
             }
         }
-        
+
         return $processedInput;
     }
 
@@ -104,7 +104,7 @@ class HomeController extends Controller
         }
 
         // \Log::debug("Extracted Criteria Inputs:", $inputs);
-        
+
         return $inputs;
     }
 
@@ -114,21 +114,21 @@ class HomeController extends Controller
     private function applyStrictFiltering(array $criteriaInputs)
     {
         $query = Pakaian::with(['penilaian.subkriteria.kriteria']);
-        
+
         // Mandatory filter: Clothing Type (highest weight criteria)
         if (!empty($criteriaInputs['jenis_pakaian'])) {
             // \Log::debug('Applying clothing type filter:', $criteriaInputs['jenis_pakaian']);
-            
+
             $query->whereHas('penilaian.subkriteria', function ($q) use ($criteriaInputs) {
                 $q->where('kriteria_id', 3)
                 ->whereIn('id', $criteriaInputs['jenis_pakaian']);
             });
         }
-        
+
         // Mandatory filter: Price Range (if specified)
         if (isset($criteriaInputs['harga_min']) && isset($criteriaInputs['harga_max'])) {
             // \Log::debug("Applying price filter: {$criteriaInputs['harga_min']} - {$criteriaInputs['harga_max']}");
-            
+
             $query->whereHas('penilaian.subkriteria', function ($q) use ($criteriaInputs) {
                 $q->where('kriteria_id', 2)
                 ->where('min_value', '<=', $criteriaInputs['harga_max'])
@@ -137,12 +137,12 @@ class HomeController extends Controller
         }
 
         $filteredClothing = $query->get();
-        
+
         // Validate filtering results
         $this->validateFilterResults($filteredClothing, $criteriaInputs);
-        
+
         // \Log::debug('Filtered clothing count: ' . $filteredClothing->count());
-        
+
         return $filteredClothing;
     }
 
@@ -156,8 +156,8 @@ class HomeController extends Controller
                 $clothingTypeAssessment = $item->penilaian
                     ->where('subkriteria.kriteria_id', 3)
                     ->first();
-                    
-                if (!$clothingTypeAssessment || 
+
+                if (!$clothingTypeAssessment ||
                     !in_array($clothingTypeAssessment->sub_kriteria_id, $criteriaInputs['jenis_pakaian'])) {
                     // \Log::error("❌ Filter validation failed for clothing: {$item->nama}");
                 }
@@ -178,15 +178,15 @@ class HomeController extends Controller
 
         // Build decision matrix
         $decisionMatrix = $this->buildDecisionMatrix($clothing, $criteria, $userInput);
-        
+
         // Calculate min/max values for normalization
         $normalizationValues = $this->calculateNormalizationValues($decisionMatrix, $criteria);
-        
+
         // Calculate preference scores
         $results = $this->calculatePreferenceScores(
-            $clothing, 
-            $decisionMatrix, 
-            $criteria, 
+            $clothing,
+            $decisionMatrix,
+            $criteria,
             $normalizationValues,
             $userInput
         );
@@ -197,7 +197,7 @@ class HomeController extends Controller
             ->values();
 
         $this->logFinalRecommendations($recommendations);
-        
+
         return $recommendations;
     }
 
@@ -207,13 +207,13 @@ class HomeController extends Controller
     private function buildDecisionMatrix($clothing, $criteria, array $userInput): array
     {
         $matrix = [];
-        
+
         foreach ($clothing as $item) {
             $matrix[$item->id] = [];
-            
+
             foreach ($criteria as $criterion) {
                 $userSubIds = $userInput[$criterion->id] ?? [];
-                
+
                 if (empty($userSubIds)) {
                     continue; // Skip criteria not selected by user
                 }
@@ -225,17 +225,17 @@ class HomeController extends Controller
 
                 if ($matchingAssessments->isNotEmpty()) {
                     // Use average if multiple matches, first match for clothing type
-                    $value = ($criterion->id == 3) 
+                    $value = ($criterion->id == 3)
                         ? $matchingAssessments->first()->nilai
                         : $matchingAssessments->avg('nilai');
-                        
+
                     $matrix[$item->id][$criterion->id] = $value;
-                    
+
                     // \Log::debug("Item {$item->id} - Criterion {$criterion->id}: {$value}");
                 }
             }
         }
-        
+
         return $matrix;
     }
 
@@ -245,7 +245,7 @@ class HomeController extends Controller
     private function calculateNormalizationValues(array $decisionMatrix, $criteria): array
     {
         $values = ['max' => [], 'min' => []];
-        
+
         foreach ($criteria as $criterion) {
             $criterionValues = collect($decisionMatrix)
                 ->pluck($criterion->id)
@@ -261,10 +261,10 @@ class HomeController extends Controller
                 $values['max'][$criterion->id] = 1;
                 $values['min'][$criterion->id] = 1;
             }
-            
+
             // \Log::debug("Criterion {$criterion->id} normalization - Max: {$values['max'][$criterion->id]}, Min: {$values['min'][$criterion->id]}");
         }
-        
+
         return $values;
     }
 
@@ -274,27 +274,27 @@ class HomeController extends Controller
     private function calculatePreferenceScores($clothing, array $decisionMatrix, $criteria, array $normValues, array $userInput): array
     {
         $results = [];
-        
+
         foreach ($clothing as $item) {
             $preferenceScore = 0;
             $totalWeight = 0;
-            
+
             foreach ($criteria as $criterion) {
                 $userSubIds = $userInput[$criterion->id] ?? [];
-                
+
                 if (empty($userSubIds) || !isset($decisionMatrix[$item->id][$criterion->id])) {
                     continue;
                 }
 
                 $value = $decisionMatrix[$item->id][$criterion->id];
-                
+
                 if ($value <= 0) continue;
 
                 // Normalize value based on criterion type
                 $normalizedValue = $this->normalizeValue(
-                    $value, 
-                    $normValues['max'][$criterion->id], 
-                    $normValues['min'][$criterion->id], 
+                    $value,
+                    $normValues['max'][$criterion->id],
+                    $normValues['min'][$criterion->id],
                     $criterion->jenis
                 );
 
@@ -317,10 +317,10 @@ class HomeController extends Controller
                 'jenis_pakaian' => $clothingType,
                 'total_weight' => $totalWeight
             ];
-            
+
             // \Log::debug("📊 Final Score - Item {$item->id} ({$item->nama}): {$preferenceScore}");
         }
-        
+
         return $results;
     }
 
@@ -342,7 +342,7 @@ class HomeController extends Controller
     private function logFinalRecommendations($recommendations): void
     {
         // \Log::debug('🏆 FINAL RECOMMENDATIONS:');
-        
+
         foreach ($recommendations as $index => $item) {
             $rank = $index + 1;
             // \Log::debug("{$rank}. {$item['pakaian']->nama} - Score: {$item['score']} - Type: {$item['jenis_pakaian']}");

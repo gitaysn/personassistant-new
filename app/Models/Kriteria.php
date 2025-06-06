@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Kriteria extends Model
 {
@@ -13,9 +14,9 @@ class Kriteria extends Model
 
     protected $fillable = ['nama_kriteria', 'bobot', 'jenis', 'kode_kriteria'];
 
-    public function subKriteria()
+    public function subKriteria(): HasMany
     {
-        return $this->hasMany(SubKriteria::class);
+        return $this->hasMany(SubKriteria::class, );
     }
 
 }
