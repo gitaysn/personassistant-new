@@ -156,7 +156,7 @@
               <p class="mb-4 fs-1">Terima kasih telah mengunjungi situs kami! Kami siap membantu anda mencari pakaian yang sesuai dengan gaya dan kebutuhan anda!</p>
 
               <a href="#pilihpakaian" class="btn btn-primary px-4 py-2">
-                Mulai Cari Pakaian
+                Cari Pakaian
               </a>
             </div>
           </div>
