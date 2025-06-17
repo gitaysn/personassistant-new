@@ -30,6 +30,9 @@
         <a href="{{ route('forgot.password.form') }}" class="text-green-700 hover:underline font-medium">
           Lupa Password?
         </a>
+        <a href="{{ route('forgot.username.form') }}" class="text-green-700 hover:underline font-medium">
+          Lupa Username?
+        </a>
       </div>      
       <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded font-semibold">
         Login

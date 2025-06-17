@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PakaianController;
+use App\Http\Controllers\RiwayatController;
 use App\Http\Controllers\KriteriaController;
 use App\Http\Controllers\PenilaianController;
 use App\Http\Controllers\Admin\AuthController;
@@ -12,7 +13,8 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\SubKriteriaShowController;
 use App\Http\Controllers\Landingpage\HomeController;
 use App\Http\Controllers\Admin\ResetPasswordController;
-use App\Http\Controllers\RiwayatController;
+use App\Http\Controllers\Admin\ForgotPasswordController;
+use App\Http\Controllers\Admin\ForgotUsernameController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,17 +36,21 @@ Route::post('/proses-rekomendasi', [HomeController::class, 'prosesRekomendasi'])
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 
-// Menampilkan form lupa password
-Route::get('/forgot-password', [\App\Http\Controllers\Admin\ForgotPasswordController::class, 'showForm'])->name('forgot.password.form');
+// === Forgot Username (tanpa prefix 'admin') ===
+Route::get('/forgot-username', [ForgotUsernameController::class, 'showForm'])
+    ->name('forgot.username.form');
+Route::post('/forgot-username', [ForgotUsernameController::class, 'sendUsername'])
+    ->name('forgot.username.send');
 
-// Mengirim email reset link
-Route::post('/forgot-password', [\App\Http\Controllers\Admin\ForgotPasswordController::class, 'sendResetLink'])->name('forgot.password.send');
-
-// Menampilkan form reset password (dari email)
-Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
-
-// Menyimpan password baru
-Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
+// === Forgot Password (tanpa prefix 'admin') ===
+Route::get('/forgot-password', [ForgotPasswordController::class, 'showForm'])
+    ->name('forgot.password.form');
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink'])
+    ->name('forgot.password.send');
+Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])
+    ->name('password.reset');
+Route::post('/reset-password', [ResetPasswordController::class, 'reset'])
+    ->name('password.update');
 
 // Logout
 Route::post('/logout', function () {
@@ -62,7 +68,6 @@ Route::prefix('admin')->middleware(['auth'])->as('admin.')->group(function () {
 
     Route::resource('penilaian', PenilaianController::class);
     Route::resource('user', UserController::class);
-    Route::get('riwayat', [RiwayatController::class, 'index'])->name('riwayat.index');
 });
 
 // // Kriteria

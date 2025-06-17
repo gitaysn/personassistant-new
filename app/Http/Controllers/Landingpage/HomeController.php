@@ -17,10 +17,12 @@ class HomeController extends Controller
 {
     public function index()
     {
+        // Mengambil semua subkriteria beserta relasi kriterianya, lalu mengelompokkan berdasarkan nama kriteria
         $subKriteria = SubKriteria::with('kriteria')->get()->groupBy(function ($item) {
             return $item->kriteria->nama_kriteria;
         });
 
+        // Mengambil semua data pakaian beserta relasi ke subkriteria
         $pakaians = Pakaian::with('subKriterias')->get();
 
         return view('landingpage.master', [
@@ -30,31 +32,33 @@ class HomeController extends Controller
     }
     public function prosesRekomendasi(Request $request)
     {
-        // Input validation and processing
+        // Memproses input pengguna dari form
         $userInput = $this->processUserInput($request->input('sub_kriteria', []));
 
+        // Jika tidak ada input yang valid, tampilkan pesan error
         if (empty($userInput)) {
             return $this->returnNoResults('Silakan pilih minimal satu kriteria.');
         }
 
         // \Log::debug('User Input:', $userInput);
 
-        // Get selected subcriteria data
+        // Mengambil data subkriteria berdasarkan input user
         $selectedSubkriteria = SubKriteria::whereIn('id', collect($userInput)->flatten())
             ->get()
             ->keyBy('id');
 
-        // Extract criteria inputs
+        // Menyusun input berdasarkan jenis kriteria
         $criteriaInputs = $this->extractCriteriaInputs($userInput, $selectedSubkriteria);
 
-        // Apply strict filtering
+        // Filter ketat berdasarkan input wajib
         $filteredClothing = $this->applyStrictFiltering($criteriaInputs);
 
+        // Jika tidak ada hasil setelah filter, tampilkan pesan
         if ($filteredClothing->isEmpty()) {
             return $this->returnNoResults('Tidak ada pakaian yang sesuai dengan kriteria yang Anda pilih.');
         }
 
-        // Calculate recommendations using weighted scoring
+         // Hitung rekomendasi menggunakan metode SAW
         $recommendations = $this->calculateRecommendations($filteredClothing, $userInput);
 
         return view('landingpage.hasil', compact('recommendations'));
@@ -70,11 +74,12 @@ class HomeController extends Controller
         foreach ($userInput as $kriteria_id => $subkriteria) {
             $subkriteriaArray = (array) $subkriteria;
 
-            // Remove empty values and validate
+            // Buang nilai kosong dan pastikan hanya angka yang valid
             $cleanedSubkriteria = array_filter($subkriteriaArray, function($value) {
                 return !empty($value) && is_numeric($value);
             });
 
+            // Simpan hanya jika ada nilai yang valid
             if (!empty($cleanedSubkriteria)) {
                 $processedInput[$kriteria_id] = array_map('intval', $cleanedSubkriteria);
             }
@@ -96,7 +101,7 @@ class HomeController extends Controller
             'lokasi' => $userInput[5] ?? []           // Criteria 5: Location
         ];
 
-        // Calculate price range if price criteria is selected
+        // Jika kriteria harga dipilih, hitung rentang harga min dan max
         if (!empty($inputs['harga'])) {
             $hargaRanges = $selectedSubkriteria->only($inputs['harga']);
             $inputs['harga_min'] = $hargaRanges->min('min_value');
@@ -115,7 +120,7 @@ class HomeController extends Controller
     {
         $query = Pakaian::with(['penilaian.subkriteria.kriteria']);
 
-        // Mandatory filter: Clothing Type (highest weight criteria)
+        // Filter berdasarkan jenis pakaian (wajib)
         if (!empty($criteriaInputs['jenis_pakaian'])) {
             // \Log::debug('Applying clothing type filter:', $criteriaInputs['jenis_pakaian']);
 
@@ -125,7 +130,7 @@ class HomeController extends Controller
             });
         }
 
-        // Mandatory filter: Price Range (if specified)
+        // Filter berdasarkan harga jika ada
         if (isset($criteriaInputs['harga_min']) && isset($criteriaInputs['harga_max'])) {
             // \Log::debug("Applying price filter: {$criteriaInputs['harga_min']} - {$criteriaInputs['harga_max']}");
 
@@ -138,7 +143,7 @@ class HomeController extends Controller
 
         $filteredClothing = $query->get();
 
-        // Validate filtering results
+        // Validasi hasil filter agar benar-benar sesuai
         $this->validateFilterResults($filteredClothing, $criteriaInputs);
 
         // \Log::debug('Filtered clothing count: ' . $filteredClothing->count());
@@ -170,19 +175,19 @@ class HomeController extends Controller
      */
     private function calculateRecommendations($clothing, array $userInput): \Illuminate\Support\Collection
     {
-        // Get criteria with weights
+        // Ambil data kriteria dan bobotnya
         $criteria = Kriteria::with('subkriteria')
             ->whereIn('id', [1, 2, 3, 4, 5])
             ->orderByDesc('bobot') // Order by weight (highest first)
             ->get();
 
-        // Build decision matrix
+        // Susun decision matrix
         $decisionMatrix = $this->buildDecisionMatrix($clothing, $criteria, $userInput);
 
-        // Calculate min/max values for normalization
+        // Hitung nilai normalisasi (min & max)
         $normalizationValues = $this->calculateNormalizationValues($decisionMatrix, $criteria);
 
-        // Calculate preference scores
+        // Hitung skor preferensi
         $results = $this->calculatePreferenceScores(
             $clothing,
             $decisionMatrix,
@@ -191,7 +196,7 @@ class HomeController extends Controller
             $userInput
         );
 
-        // Sort by score (descending)
+        // Urutkan hasil berdasarkan skor
         $recommendations = collect($results)
             ->sortByDesc('score')
             ->values();
@@ -218,13 +223,13 @@ class HomeController extends Controller
                     continue; // Skip criteria not selected by user
                 }
 
-                // Get matching assessments for this criterion
+                 // Ambil penilaian yang sesuai
                 $matchingAssessments = $item->penilaian->filter(function ($assessment) use ($userSubIds) {
                     return in_array($assessment->sub_kriteria_id, $userSubIds);
                 });
 
                 if ($matchingAssessments->isNotEmpty()) {
-                    // Use average if multiple matches, first match for clothing type
+                    // Gunakan nilai rata-rata (kecuali jenis pakaian, cukup satu)
                     $value = ($criterion->id == 3)
                         ? $matchingAssessments->first()->nilai
                         : $matchingAssessments->avg('nilai');
@@ -290,7 +295,7 @@ class HomeController extends Controller
 
                 if ($value <= 0) continue;
 
-                // Normalize value based on criterion type
+                // Normalisasi nilai sesuai jenis kriteria (benefit atau cost)
                 $normalizedValue = $this->normalizeValue(
                     $value,
                     $normValues['max'][$criterion->id],
@@ -298,7 +303,7 @@ class HomeController extends Controller
                     $criterion->jenis
                 );
 
-                // Calculate weighted contribution
+                 // Hitung skor kontribusi berdasarkan bobot
                 $weight = $criterion->bobot;
                 $contribution = $normalizedValue * $weight;
                 $preferenceScore += $contribution;
@@ -307,6 +312,7 @@ class HomeController extends Controller
                 // \Log::debug("Item {$item->id} - Criterion {$criterion->id}: Value={$value}, Normalized={$normalizedValue}, Weight={$weight}, Contribution={$contribution}");
             }
 
+            // Ambil nama jenis pakaian untuk ditampilkan
             $clothingType = $item->penilaian
                 ->firstWhere('subkriteria.kriteria_id', 3)
                 ?->subkriteria->nama ?? 'Lainnya';
