@@ -51,8 +51,9 @@ class PakaianController extends Controller
             'nama_pakaian' => 'required|string|max:255',
             'harga' => 'required|numeric',
             'img' => 'nullable|image|max:2048',
-            'sub_kriterias' => 'nullable',
             'deskripsi' => 'nullable|string|max:1000',
+            'sub_kriterias' => 'nullable|array',
+            'sub_kriterias.*' => 'integer',
         ]);
 
         DB::beginTransaction();
